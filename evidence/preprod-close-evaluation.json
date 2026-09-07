@@ -1,0 +1,98 @@
+{
+  "endpoint": "https://preprod.koios.rest/api/v1/ogmios",
+  "observed_at": 1788636340.861308,
+  "mode": "hosted evaluation with synthetic additional UTxOs; no submission",
+  "action": "close",
+  "request_bytes": 3230,
+  "request": {
+    "jsonrpc": "2.0",
+    "id": "kernel-qualification",
+    "method": "evaluateTransaction",
+    "params": {
+      "transaction": {
+        "cbor": "84ac00d9010282825820000000000000000000000000000000000000000000000000000000000000000000825820ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff020182825839007070707070707070707070707070707070707070707070707070707073737373737373737373737373737373737373737373737373737373821a002a4982a1581c9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502a14566555344411a000f4240825839007070707070707070707070707070707070707070707070707070707073737373737373737373737373737373737373737373737373737373821a05ef29fea1581c9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502a14566555344411a002625a0021a0006b702031a07ec9b55081a07ec99ed09a1581c47cec2a1404ed91fc31124f29db15dc1aae77e0617868bcef351b8fda35820551b14a8ca45a564a6b420be5761c038ae005b6a8f8bae1e354bdfe39cfae394205820afe799c0ebb9165e8d148f522a03286dbaa66d3b78c32dbe263a589129ee2a32205820dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986200b58207f1b243f8a81fa0da1807b879b4d59a3ed5f42bcb6ab0f0031bae3d33a63f7d30dd90102818258200101010101010101010101010101010101010101010101010101010101010101000ed9010281581c73737373737373737373737373737373737373737373737373737373108258390070707070707070707070707070707070707070707070707070707070737373737373737373737373737373737373737373737373737373731a0059bfa2111a003ed6de12d90102828258209fecc1d2cf99088facad02aeccbedb6a4f783965dc6c02bd04dc8b348e9a0858008258209fecc1d2cf99088facad02aeccbedb6a4f783965dc6c02bd04dc8b348e9a085801a105a282000182d87980821a000927c01a0e4e1c0082010082d87980821a000927c01a0e4e1c00f5f6"
+      },
+      "additionalUtxo": [
+        {
+          "transaction": {
+            "id": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "index": 0,
+          "address": "addr_test1qpc8qurswpc8qurswpc8qurswpc8qurswpc8qurswpc8qurnwdehxumnwdehxumnwdehxumnwdehxumnwdehxumnwdesupl0u5",
+          "value": {
+            "ada": {
+              "lovelace": 100000000
+            },
+            "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502": {
+              "6655534441": 2500000
+            }
+          }
+        },
+        {
+          "transaction": {
+            "id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "index": 2,
+          "address": "addr_test1zqql5djxthlrdcnvy87m7uswf0d0es9cdw6nvl72gcqj74nnwdehxumnwdehxumnwdehxumnwdehxumnwdehxumnwdesc6d7cl",
+          "value": {
+            "ada": {
+              "lovelace": 2771330
+            },
+            "47cec2a1404ed91fc31124f29db15dc1aae77e0617868bcef351b8fd": {
+              "551b14a8ca45a564a6b420be5761c038ae005b6a8f8bae1e354bdfe39cfae394": 1,
+              "afe799c0ebb9165e8d148f522a03286dbaa66d3b78c32dbe263a589129ee2a32": 1,
+              "dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986": 1
+            },
+            "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502": {
+              "6655534441": 1000000
+            }
+          },
+          "datum": "d8799f581c47cec2a1404ed91fc31124f29db15dc1aae77e0617868bcef351b8fd5820551b14a8ca45a564a6b420be5761c038ae005b6a8f8bae1e354bdfe39cfae394581c9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5024566555344415820afe799c0ebb9165e8d148f522a03286dbaa66d3b78c32dbe263a589129ee2a3240405820dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986d8799f0101ffd87a80ff"
+        },
+        {
+          "transaction": {
+            "id": "0101010101010101010101010101010101010101010101010101010101010101"
+          },
+          "index": 0,
+          "address": "addr_test1qpc8qurswpc8qurswpc8qurswpc8qurswpc8qurswpc8qurnwdehxumnwdehxumnwdehxumnwdehxumnwdehxumnwdesupl0u5",
+          "value": {
+            "ada": {
+              "lovelace": 10000000
+            }
+          }
+        }
+      ]
+    }
+  },
+  "transaction_id": "6f506216b9f7beba03822dfc40b4de93932ec5dd55a92bdeefd176dd55d94232",
+  "budgets_source": "structural placeholders; a successful probe must be followed by budgeted final evaluation",
+  "http_status": 200,
+  "response": {
+    "jsonrpc": "2.0",
+    "method": "evaluateTransaction",
+    "result": [
+      {
+        "validator": {
+          "index": 1,
+          "purpose": "spend"
+        },
+        "budget": {
+          "memory": 121827,
+          "cpu": 36910476
+        }
+      },
+      {
+        "validator": {
+          "index": 0,
+          "purpose": "mint"
+        },
+        "budget": {
+          "memory": 78527,
+          "cpu": 21284610
+        }
+      }
+    ],
+    "id": "kernel-qualification"
+  },
+  "final_evaluation_within_assigned_budgets": true
+}

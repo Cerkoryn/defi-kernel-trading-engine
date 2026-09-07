@@ -1,0 +1,119 @@
+{
+  "network": "preprod",
+  "chain_id": "1:1654041600:testnet",
+  "observed_at": 1788619705.5362496,
+  "pool": {
+    "tx_hash": "1124867db2f08f2d0869c8a99c9542c3ff13feec6bbe59421a003ce6037a64d8",
+    "tx_index": 0,
+    "address": "addr_test1xqzqg8pudw58kvlje84h7ld74cajvqpu8cve6suthxvn9g4hxsttrspsl2ylsykd5snk9rxfuhva4ayf3t0sfk3h9m9q6extpm",
+    "value": "58159174",
+    "stake_address": "stake_test17zmng943cqc04z0cztx6gfmz3ny7tkw67jyc4hcymgmjajsmvnv32",
+    "payment_cred": "04041c3c6ba87b33f2c9eb7f7dbeae3b26003c3e199d438bb99932a2",
+    "epoch_no": 295,
+    "block_height": 4828201,
+    "block_time": 1781593313,
+    "datum_hash": "99ae3053215f4bc86f5a2b63c46144f620bc0c29c56725f81bf1fa024f0d781f",
+    "inline_datum": {
+      "bytes": "d8799f9f4040ff9f581c9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502456655534441ff181e19f19e193b941a00757e20d8799f1b001167988bffc5941b002386f26fc10000ffd8799f1b00024009c4ec5e621b00038d7ea4c68000ff1a000564ee1a0001aa1e1a01618eb11a0001236aff",
+      "value": {
+        "fields": [
+          {
+            "list": [
+              {
+                "bytes": ""
+              },
+              {
+                "bytes": ""
+              }
+            ]
+          },
+          {
+            "list": [
+              {
+                "bytes": "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502"
+              },
+              {
+                "bytes": "6655534441"
+              }
+            ]
+          },
+          {
+            "int": 30
+          },
+          {
+            "int": 61854
+          },
+          {
+            "int": 15252
+          },
+          {
+            "int": 7700000
+          },
+          {
+            "fields": [
+              {
+                "int": 4898979485566356
+              },
+              {
+                "int": 10000000000000000
+              }
+            ],
+            "constructor": 0
+          },
+          {
+            "fields": [
+              {
+                "int": 633360656129634
+              },
+              {
+                "int": 1000000000000000
+              }
+            ],
+            "constructor": 0
+          },
+          {
+            "int": 353518
+          },
+          {
+            "int": 109086
+          },
+          {
+            "int": 23170737
+          },
+          {
+            "int": 74602
+          }
+        ],
+        "constructor": 0
+      }
+    },
+    "reference_script": null,
+    "asset_list": [
+      {
+        "decimals": 0,
+        "quantity": "1",
+        "policy_id": "04041c3c6ba87b33f2c9eb7f7dbeae3b26003c3e199d438bb99932a2",
+        "asset_name": "ad443b11d9c4a3fb2eeee08baeb67346c839c470c425b7f013cd99c4f4b59ca5",
+        "fingerprint": "asset1lxskqk58hurxup4fu54grtmkuwe92jdd4fsp6r"
+      },
+      {
+        "decimals": 0,
+        "quantity": "1272376",
+        "policy_id": "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502",
+        "asset_name": "6655534441",
+        "fingerprint": "asset1vlfkdwhy7zafha38p3n6ymqz9wp54tkmda8m78"
+      }
+    ],
+    "is_spent": false
+  },
+  "base_unit": "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5026655534441",
+  "platform_fee_rate": 1000,
+  "fixed_fee_lovelace": 100000,
+  "assumed_tx_fee_lovelace": 500000,
+  "order_size": 500000,
+  "synthetic_inventory": {
+    "free_base": 2500000,
+    "free_quote": 100000000
+  },
+  "source": "evidence/preprod-dano-scan.json; fee values independently confirmed in evidence/preprod-dano-config.json; responses are not an atomic snapshot"
+}

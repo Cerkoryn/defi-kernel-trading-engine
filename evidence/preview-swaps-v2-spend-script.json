@@ -1,0 +1,7 @@
+{
+  "endpoint": "https://preview.koios.rest/api/v1",
+  "observed_at": 1788619699.3107033,
+  "data": {
+    "error": "Script unavailable or identity mismatch"
+  }
+}

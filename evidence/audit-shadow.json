@@ -1,0 +1,52 @@
+{
+  "network": "preprod",
+  "wallet": "mvp-test",
+  "run": {
+    "stop_requested": 0,
+    "state": "stopped",
+    "heartbeat": 1788788583.5927546
+  },
+  "latest_shadow": {
+    "observed_at": 1788788583.574669,
+    "decision": {
+      "mode": "live-data shadow",
+      "observed_at": 1788788577.235795,
+      "network": "preprod",
+      "fill_count": 3,
+      "costs": {
+        "ledger_fees_paid_lovelace": 5129168,
+        "pending_fee_reserve_lovelace": 0,
+        "venue_fees_paid_lovelace": 300000
+      },
+      "inventory": {
+        "free_base": 600000,
+        "free_lovelace": 22309605,
+        "committed_base": 0,
+        "committed_lovelace": 0,
+        "known_minimum_ada_deposits": 0,
+        "unknown_deposit_orders": 0,
+        "collateral_lovelace": 5000000,
+        "operating_input_cap_lovelace": 100000000,
+        "protected_assets": {
+          "lovelace": 9964828295
+        }
+      },
+      "action": "publish",
+      "reason": "Publish independently funded bid and ask",
+      "submission_enabled": false,
+      "quantity": null,
+      "order_inputs": []
+    }
+  },
+  "transactions": [],
+  "orders": [],
+  "settled_balance_delta": {
+    "lovelace": 1054841,
+    "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5026655534441": -225000
+  },
+  "shadow_decisions": 14,
+  "observation_age_seconds": 654.3034176826477,
+  "transaction_count": 13,
+  "reservation_count": 27,
+  "fill_count": 3
+}

@@ -1,0 +1,32 @@
+{
+  "swaps-v1": {
+    "source_commit": "9ec41e7619f5ba9d3dd46dd194e2146098093721",
+    "source_url": "https://github.com/fallen-icarus/cardano-swaps/blob/9ec41e7619f5ba9d3dd46dd194e2146098093721/aiken/plutus.json",
+    "script_hash": "01fa36465dfe36e26c21fdbf720e4bdafcc0b86bb5367fca46012f56",
+    "plutus_version": 2,
+    "beacon_policy": "47cec2a1404ed91fc31124f29db15dc1aae77e0617868bcef351b8fd",
+    "audit": "upstream reports v1 audited",
+    "validation": "source-hash-verified; read candidates observed",
+    "execution_qualified": false
+  },
+  "swaps-legacy-expiration": {
+    "source_commit": "75aa2e0f304ab00feb09608c8187140f20cdf74b",
+    "source_url": "https://github.com/fallen-icarus/cardano-swaps/blob/75aa2e0f304ab00feb09608c8187140f20cdf74b/aiken/plutus.json",
+    "script_hash": "1d6cff26bcab91d2061aad0bd259cbb7d76d25ced2eeaed5926a42ad",
+    "plutus_version": 2,
+    "beacon_policy": "c4d7d117d9ebcde6db28db40837ff2b1401e9eaaa6eecea9e070e209",
+    "audit": "not covered by v1 audit",
+    "validation": "source-hash-verified; read candidates observed",
+    "execution_qualified": false
+  },
+  "swaps-v2": {
+    "source_commit": "0b24fc374c8b30ca5f46b70ab4e078cdd7333e2f",
+    "source_url": "https://github.com/fallen-icarus/cardano-swaps/blob/0b24fc374c8b30ca5f46b70ab4e078cdd7333e2f/aiken/plutus.json",
+    "script_hash": "ef69e7b2174184c1a1e140f255af81bb6a8daf7d3796563ec7bdeccb",
+    "plutus_version": 3,
+    "beacon_policy": "4557249e92a42c371f494c32fcfbb31648ef14c4fb69056e56269af3",
+    "audit": "not covered by v1 audit",
+    "validation": "source-hash-verified; no UTxOs observed in sample probes",
+    "execution_qualified": false
+  }
+}

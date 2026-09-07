@@ -1,0 +1,43 @@
+{
+  "endpoint": "https://api.koios.rest/api/v1",
+  "observed_at": 1788619681.6943517,
+  "data": [
+    {
+      "tx_hash": "2cafd7c92f7093e5229af274be83dea660b0590b4174bbed79ba662b44fbd1ee",
+      "tx_index": 0,
+      "address": "addr1z8afjx7zl8zzqmnj6ufmcdy85uh8jqg90j4m35myh6lwlrectd0zw3ydwgtk9hpse3mgyezedms0y054fa47vfkt08qsdxsvyq",
+      "value": "1349030",
+      "stake_address": "stake1uyu9kh38gjxhy9mzmscvca5zv3vkac8j862576lxym9hnsgw6zrqw",
+      "payment_cred": "fa991bc2f9c4206e72d713bc3487a72e7901057cabb8d364bebeef8f",
+      "epoch_no": 617,
+      "block_height": 13123767,
+      "block_time": 1772791727,
+      "datum_hash": "23003ca790e5585b8b9769faa819ca3ae889b2bbbc6f158935098d475a9f2b90",
+      "inline_datum": {
+        "bytes": "d8799f1903e81a000186a0ff",
+        "value": {
+          "fields": [
+            {
+              "int": 1000
+            },
+            {
+              "int": 100000
+            }
+          ],
+          "constructor": 0
+        }
+      },
+      "reference_script": null,
+      "asset_list": [
+        {
+          "decimals": 0,
+          "quantity": "1",
+          "policy_id": "bc2d3b7cf1009c788b1daf2208a38026ab20d7f8209d896ad1a09c14",
+          "asset_name": "72f9dae79bb2dfa39bd8fadf089ea0c8377b5eaa3caef0549396668aef1f9187",
+          "fingerprint": "asset14lhphpdaeczcza569khsxrnw92u53x30y4cr2p"
+        }
+      ],
+      "is_spent": false
+    }
+  ]
+}

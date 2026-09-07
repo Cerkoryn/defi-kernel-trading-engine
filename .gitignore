@@ -1,0 +1,29 @@
+# Local Python environment and offline dependency cache
+/.venv/
+/.uv-cache/
+
+# Generated artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+/.coverage
+/htmlcov/
+/build/
+/dist/
+
+# Credentials and durable wallet state: never commit or discard during cleanup
+.env
+.env.*
+!.env.example
+*.skey
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+/state/
+
+# Personal tooling and historical scratch/reference material
+/.agents/
+/.codex/
+/local-reference/

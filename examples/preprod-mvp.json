@@ -1,0 +1,32 @@
+{
+  "network": "preprod",
+  "chain_id": "1:1654041600:testnet",
+  "base_unit": "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5026655534441",
+  "pool_tx_hash": "6f9736aa94d4fe9e70ff38cf145aa5ae48cdc27010c8ca2be31710a5a1ef0214",
+  "pool_index": 0,
+  "pool_nft": "04041c3c6ba87b33f2c9eb7f7dbeae3b26003c3e199d438bb99932a2ad443b11d9c4a3fb2eeee08baeb67346c839c470c425b7f013cd99c4f4b59ca5",
+  "assumed_tx_fee_lovelace": 500000,
+  "strategy": {
+    "order_size": 200000,
+    "target_base": 600000,
+    "max_base": 1500000,
+    "spread_bps": 150,
+    "skew_bps": 50,
+    "max_age_seconds": 180,
+    "reprice_bps": 100,
+    "max_order_age_seconds": 600,
+    "fee_reserve_lovelace": 3000000,
+    "carrier_per_order": 4000000
+  },
+  "execution": {
+    "max_fee_lovelace": 1500000,
+    "collateral_lovelace": 5000000,
+    "max_funding_lovelace": 100000000,
+    "max_total_fees_lovelace": 20000000,
+    "max_trade_lovelace": 10000000,
+    "rebalance_threshold_base": 200000,
+    "max_rebalance_base": 500000,
+    "slippage_bps": 100,
+    "min_route_gain_lovelace": 0
+  }
+}

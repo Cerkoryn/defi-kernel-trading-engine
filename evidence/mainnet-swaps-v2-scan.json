@@ -1,0 +1,31 @@
+{
+  "endpoint": "https://api.koios.rest/api/v1",
+  "observed_at": 1788619676.977716,
+  "data": {
+    "network": "mainnet",
+    "provider": "https://api.koios.rest/api/v1",
+    "observed_at": 1788619676.2073033,
+    "rows": [],
+    "complete": true,
+    "tip_before": {
+      "hash": "c42571a46dedd45637dee055fa58acbf2666cc9f24a3ab5cb48eda8aa325037d",
+      "epoch_no": 653,
+      "era": "Conway",
+      "abs_slot": 197053383,
+      "epoch_slot": 320583,
+      "block_height": 13901816,
+      "block_no": 13901816,
+      "block_time": 1788619674
+    },
+    "tip_after": {
+      "hash": "c42571a46dedd45637dee055fa58acbf2666cc9f24a3ab5cb48eda8aa325037d",
+      "epoch_no": 653,
+      "era": "Conway",
+      "abs_slot": 197053383,
+      "epoch_slot": 320583,
+      "block_height": 13901816,
+      "block_no": 13901816,
+      "block_time": 1788619674
+    }
+  }
+}

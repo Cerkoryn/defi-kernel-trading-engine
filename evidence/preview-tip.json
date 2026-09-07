@@ -1,0 +1,14 @@
+{
+  "endpoint": "https://preview.koios.rest/api/v1",
+  "observed_at": 1788619693.582428,
+  "data": {
+    "hash": "8e6f41a46a73280cd99e3eea49f211a30b5ef2fc400e2261c02ef7d1b84600c5",
+    "epoch_no": 1411,
+    "era": "Conway",
+    "abs_slot": 121963683,
+    "epoch_slot": 53283,
+    "block_height": 4634090,
+    "block_no": 4634090,
+    "block_time": 1788619683
+  }
+}

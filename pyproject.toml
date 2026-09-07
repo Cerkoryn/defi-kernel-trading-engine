@@ -1,0 +1,55 @@
+[project]
+name = "defi-kernel-runtime"
+version = "0.1.0"
+description = "Self-hosted Cardano liquidity runtime"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "charli3-dendrite",
+  "pycardano==0.18.0",
+  "httpx==0.28.1",
+  "typer>=0.16,<1",
+  "cbor2>=5.9.0,<6",
+]
+
+[project.scripts]
+kernel = "defi_kernel.cli:app"
+
+[tool.uv]
+# Dendrite pins vulnerable dotenv 1.0.1; patch only that transitive pin
+# (CVE-2026-28684). Setup is qualified through uv.
+override-dependencies = ["python-dotenv>=1.2.2,<2"]
+# PyCardano 0.18 needs ordered tag-258 decoding; the C decoder uses sets.
+no-binary-package = ["cbor2"]
+extra-build-variables = { cbor2 = { CBOR2_BUILD_C_EXTENSION = "0" } }
+
+[tool.uv.sources]
+charli3-dendrite = { git = "https://github.com/Charli3-Official/charli3-dendrite", rev = "0a1e02505af9d92506e8adbaf42307d923b1f061" }
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.12,<1"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/defi_kernel"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"docs/SWAPS-LICENSE.md" = "defi_kernel/data/SWAPS-LICENSE.md"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "scripts", "examples", "docs", "evidence", "README.md", "CHECKPOINT.md", "config.example.toml", "cardano-trading-mvp-plan.md", "pyproject.toml", "uv.lock", ".python-version"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# PyCardano 0.18's PlutusData deserializer only recognizes typing.Union.
+"src/defi_kernel/protocols.py" = ["UP007"]

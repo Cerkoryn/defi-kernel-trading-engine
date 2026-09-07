@@ -1,0 +1,23 @@
+{
+  "scope": "Transaction reconciliation only, twelve already-confirmed intents; real HTTP latency and order-history polling excluded.",
+  "after": {
+    "requests": {
+      "genesis": 1,
+      "tip": 1,
+      "blocks": 12
+    },
+    "total_requests": 14,
+    "offline_seconds": 0.002715090988203883
+  },
+  "before": {
+    "requests": {
+      "genesis": 12,
+      "tip": 12,
+      "tx_info": 12,
+      "tx_cbor": 12,
+      "blocks": 12
+    },
+    "total_requests": 60,
+    "offline_seconds": 0.10564825899200514
+  }
+}

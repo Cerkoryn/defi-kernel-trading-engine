@@ -1,0 +1,87 @@
+{
+  "endpoint": "https://preprod.koios.rest/api/v1/ogmios",
+  "observed_at": 1788636341.2234836,
+  "mode": "hosted evaluation with synthetic additional UTxOs; no submission",
+  "action": "dano",
+  "request_bytes": 2815,
+  "request": {
+    "jsonrpc": "2.0",
+    "id": "kernel-qualification",
+    "method": "evaluateTransaction",
+    "params": {
+      "transaction": {
+        "cbor": "84ac00d90102828258200000000000000000000000000000000000000000000000000000000000000000008258201124867db2f08f2d0869c8a99c9542c3ff13feec6bbe59421a003ce6037a64d8000182a30058393004041c3c6ba87b33f2c9eb7f7dbeae3b26003c3e199d438bb99932a2b73416b1c030fa89f812cda427628cc9e5d9daf4898adf04da372eca01821a035aeb34a2581c04041c3c6ba87b33f2c9eb7f7dbeae3b26003c3e199d438bb99932a2a15820ad443b11d9c4a3fb2eeee08baeb67346c839c470c425b7f013cd99c4f4b59ca501581c9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502a14566555344411a001b0b58028201d818587bd8799f9f4040ff9f581c9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502456655534441ff181e19f19e193c2a1a007704c0d8799f1b001167988bffc5941b002386f26fc10000ffd8799f1b00024009c4ec5e621b00038d7ea4c68000ff1a000564ee1a0001aa1e1a01618eb11a000132afff825839007070707070707070707070707070707070707070707070707070707073737373737373737373737373737373737373737373737373737373821a0607f1eaa1581c9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502a14566555344411a001e8480021a000a7428031a07ec9b5505a2581df004041c3c6ba87b33f2c9eb7f7dbeae3b26003c3e199d438bb99932a200581df0b73416b1c030fa89f812cda427628cc9e5d9daf4898adf04da372eca00081a07ec99ed0b5820cbcd7030bbc3f69941f8d67235ad88e166db596f6a303ade978afa8874859c740dd90102818258200101010101010101010101010101010101010101010101010101010101010101000ed9010281581c70707070707070707070707070707070707070707070707070707070108258390070707070707070707070707070707070707070707070707070707070737373737373737373737373737373737373737373737373737373731a00558397111a004312e912d90102838258202e19cca74e3badcab26aef7574aa1885ba97228a254ca227ba2f79f2b75fd136008258203775af36f485f9c97101ee5b9b360c34f0f8e12186bc9060f358b7fc8ce468a400825820ac34ba0ccfc059f6115f812331a1a786ec9e52219ac353bbec8ee1cdbe3f612701a105a382000182582401030100fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff85ee0821a000927c01a0e4e1c0082030082582401030100fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff85ee0821a000927c01a0e4e1c0082030182582401030100fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff85ee0821a000927c01a0e4e1c00f5f6"
+      },
+      "additionalUtxo": [
+        {
+          "transaction": {
+            "id": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "index": 0,
+          "address": "addr_test1qpc8qurswpc8qurswpc8qurswpc8qurswpc8qurswpc8qurnwdehxumnwdehxumnwdehxumnwdehxumnwdehxumnwdesupl0u5",
+          "value": {
+            "ada": {
+              "lovelace": 100000000
+            },
+            "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d502": {
+              "6655534441": 2500000
+            }
+          }
+        },
+        {
+          "transaction": {
+            "id": "0101010101010101010101010101010101010101010101010101010101010101"
+          },
+          "index": 0,
+          "address": "addr_test1qpc8qurswpc8qurswpc8qurswpc8qurswpc8qurswpc8qurnwdehxumnwdehxumnwdehxumnwdehxumnwdehxumnwdesupl0u5",
+          "value": {
+            "ada": {
+              "lovelace": 10000000
+            }
+          }
+        }
+      ]
+    }
+  },
+  "transaction_id": "74ebc5f0fdc86d7639ccecdd53134131ba037c46e750ed73e410cb387ae8d7de",
+  "budgets_source": "structural placeholders; a successful probe must be followed by budgeted final evaluation",
+  "http_status": 200,
+  "response": {
+    "jsonrpc": "2.0",
+    "method": "evaluateTransaction",
+    "result": [
+      {
+        "validator": {
+          "index": 1,
+          "purpose": "spend"
+        },
+        "budget": {
+          "memory": 61150,
+          "cpu": 20673614
+        }
+      },
+      {
+        "validator": {
+          "index": 0,
+          "purpose": "withdraw"
+        },
+        "budget": {
+          "memory": 829454,
+          "cpu": 270822208
+        }
+      },
+      {
+        "validator": {
+          "index": 1,
+          "purpose": "withdraw"
+        },
+        "budget": {
+          "memory": 54240,
+          "cpu": 20141908
+        }
+      }
+    ],
+    "id": "kernel-qualification"
+  },
+  "final_evaluation_within_assigned_budgets": false
+}

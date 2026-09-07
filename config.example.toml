@@ -1,0 +1,26 @@
+default_network = "preprod"
+
+[networks.mainnet]
+network_magic = 764824073
+system_start = 1506203091
+address_network = "mainnet"
+koios_url = "https://api.koios.rest/api/v1"
+wallet_id = "watch-only"
+
+[networks.preprod]
+network_magic = 1
+system_start = 1654041600
+address_network = "testnet"
+koios_url = "https://preprod.koios.rest/api/v1"
+wallet_id = "watch-only"
+
+[networks.preview]
+network_magic = 2
+system_start = 1666656000
+address_network = "testnet"
+koios_url = "https://preview.koios.rest/api/v1"
+wallet_id = "watch-only"
+
+# Custom profiles use the same fields; pin magic AND system_start independently.
+# Optional token_env refers to an environment variable containing a Koios token.
+# Never paste credentials or signing keys here.

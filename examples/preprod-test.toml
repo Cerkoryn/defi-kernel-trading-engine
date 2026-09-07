@@ -1,0 +1,11 @@
+default_network = "preprod"
+
+[networks.preprod]
+network_magic = 1
+system_start = 1654041600
+address_network = "testnet"
+koios_url = "https://preprod.koios.rest/api/v1"
+wallet_id = "mvp-test"
+# Qualified against this endpoint, not a guarantee for every Koios tier.
+max_request_bytes = 16384
+confirmations = 3

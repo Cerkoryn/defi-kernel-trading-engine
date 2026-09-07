@@ -1,0 +1,144 @@
+{
+  "endpoint": "https://api.koios.rest/api/v1",
+  "observed_at": 1788619675.1944888,
+  "data": {
+    "network": "mainnet",
+    "provider": "https://api.koios.rest/api/v1",
+    "observed_at": 1788619674.5721047,
+    "rows": [
+      {
+        "tx_hash": "d1e40e73adcbc9a9168ee2db6852892b42526e2918edc8f08b6884d472761b4b",
+        "tx_index": 0,
+        "address": "addr1zywkelexhj4er5sxr2ksh5jeewmawmf9emfwatk4jf4y9t2ve3nwsugyhgz46s763tdexuu8edhstdlctrdlgn3zj64q2f2tz4",
+        "value": "3102370",
+        "stake_address": "stake1u9xvcehgwyzt5p2ag0dg4kunwwrukmc9klu93kl5fc3fd2sqqwd7v",
+        "payment_cred": "1d6cff26bcab91d2061aad0bd259cbb7d76d25ced2eeaed5926a42ad",
+        "epoch_no": 642,
+        "block_height": 13653808,
+        "block_time": 1783561974,
+        "datum_hash": "fa7bea4f624b666c7a38264b77de0e7be9ec33b405010e3105c0b07f2299b949",
+        "inline_datum": {
+          "bytes": "d8799f581cc4d7d117d9ebcde6db28db40837ff2b1401e9eaaa6eecea9e070e20958201c856f9e9ce42421b7ce52166373caa7a651d29a44a613c7391528fa8989adec581c50cd0a2d8f2cc2092bbc5fb87c2c9488afee3d6fc4458fc8a0e89f8e4e4652454e434849452057494646205820d61789c4388c03d1d0fe0e645bdd8e54b21a9c933b2a3aac03a7a7ed5e53264e40405820dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986d8799f1a00030d4001ffd8799fd8799fd8799f582090bfaf7457aac3255e348cb44faec1a83352685de25e7ed08c7a429cbcaa412fff00ffffd87a9fffff",
+          "value": {
+            "fields": [
+              {
+                "bytes": "c4d7d117d9ebcde6db28db40837ff2b1401e9eaaa6eecea9e070e209"
+              },
+              {
+                "bytes": "1c856f9e9ce42421b7ce52166373caa7a651d29a44a613c7391528fa8989adec"
+              },
+              {
+                "bytes": "50cd0a2d8f2cc2092bbc5fb87c2c9488afee3d6fc4458fc8a0e89f8e"
+              },
+              {
+                "bytes": "4652454e43484945205749464620"
+              },
+              {
+                "bytes": "d61789c4388c03d1d0fe0e645bdd8e54b21a9c933b2a3aac03a7a7ed5e53264e"
+              },
+              {
+                "bytes": ""
+              },
+              {
+                "bytes": ""
+              },
+              {
+                "bytes": "dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986"
+              },
+              {
+                "fields": [
+                  {
+                    "int": 200000
+                  },
+                  {
+                    "int": 1
+                  }
+                ],
+                "constructor": 0
+              },
+              {
+                "fields": [
+                  {
+                    "fields": [
+                      {
+                        "fields": [
+                          {
+                            "bytes": "90bfaf7457aac3255e348cb44faec1a83352685de25e7ed08c7a429cbcaa412f"
+                          }
+                        ],
+                        "constructor": 0
+                      },
+                      {
+                        "int": 0
+                      }
+                    ],
+                    "constructor": 0
+                  }
+                ],
+                "constructor": 0
+              },
+              {
+                "fields": [],
+                "constructor": 1
+              }
+            ],
+            "constructor": 0
+          }
+        },
+        "reference_script": null,
+        "asset_list": [
+          {
+            "decimals": 0,
+            "quantity": "3",
+            "policy_id": "50cd0a2d8f2cc2092bbc5fb87c2c9488afee3d6fc4458fc8a0e89f8e",
+            "asset_name": "4652454e43484945205749464620",
+            "fingerprint": "asset1qhyxmxumpyms32uzfaeu9g5jnhvwsh9ydp70yg"
+          },
+          {
+            "decimals": 0,
+            "quantity": "1",
+            "policy_id": "c4d7d117d9ebcde6db28db40837ff2b1401e9eaaa6eecea9e070e209",
+            "asset_name": "1c856f9e9ce42421b7ce52166373caa7a651d29a44a613c7391528fa8989adec",
+            "fingerprint": "asset13d5z3csqjxxqczykmd97rtrymx2kpfzlpzhn4n"
+          },
+          {
+            "decimals": 0,
+            "quantity": "1",
+            "policy_id": "c4d7d117d9ebcde6db28db40837ff2b1401e9eaaa6eecea9e070e209",
+            "asset_name": "d61789c4388c03d1d0fe0e645bdd8e54b21a9c933b2a3aac03a7a7ed5e53264e",
+            "fingerprint": "asset1xuva7yj4quqr3dpngtg8qlf8s6qgq989gdkpy4"
+          },
+          {
+            "decimals": 0,
+            "quantity": "1",
+            "policy_id": "c4d7d117d9ebcde6db28db40837ff2b1401e9eaaa6eecea9e070e209",
+            "asset_name": "dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986",
+            "fingerprint": "asset166u2800fxw9gp94hcqyuqtwx4862z2q8h095w8"
+          }
+        ],
+        "is_spent": false
+      }
+    ],
+    "complete": true,
+    "tip_before": {
+      "hash": "c42571a46dedd45637dee055fa58acbf2666cc9f24a3ab5cb48eda8aa325037d",
+      "epoch_no": 653,
+      "era": "Conway",
+      "abs_slot": 197053383,
+      "epoch_slot": 320583,
+      "block_height": 13901816,
+      "block_no": 13901816,
+      "block_time": 1788619674
+    },
+    "tip_after": {
+      "hash": "c42571a46dedd45637dee055fa58acbf2666cc9f24a3ab5cb48eda8aa325037d",
+      "epoch_no": 653,
+      "era": "Conway",
+      "abs_slot": 197053383,
+      "epoch_slot": 320583,
+      "block_height": 13901816,
+      "block_no": 13901816,
+      "block_time": 1788619674
+    }
+  }
+}

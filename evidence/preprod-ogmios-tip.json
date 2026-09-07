@@ -1,0 +1,8 @@
+{
+  "endpoint": "https://preprod.koios.rest/api/v1",
+  "observed_at": 1788619708.4783673,
+  "data": {
+    "slot": 132936487,
+    "id": "b73c9c7cf1d9b7644aa243b9c8a36ea576bdc1e6f49a0989797f531664ac70be"
+  }
+}
