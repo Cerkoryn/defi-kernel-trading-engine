@@ -21,7 +21,7 @@ from defi_kernel.signing import ref_text, value_units
 from defi_kernel.wallet import load_wallet
 
 
-def capture(profile, journal, wallet, provider):
+def capture(profile, journal, wallet, provider, *, intent_prefix=None):
     identity = provider.verify_identity()
     owner = Address.from_primitive(wallet["address"])
     order_address = Address(
@@ -31,6 +31,8 @@ def capture(profile, journal, wallet, provider):
     )
     transactions, aborted = [], []
     for row in journal.db.execute("SELECT intent FROM outbox ORDER BY rowid"):
+        if intent_prefix is not None and not row["intent"].startswith(intent_prefix):
+            continue
         entry = journal.outbox_entry(row["intent"])
         if entry["status"] == "aborted":
             aborted.append(
@@ -134,6 +136,10 @@ def capture(profile, journal, wallet, provider):
         "runtime_decisions": [
             json.loads(row["decision"])
             for row in journal.db.execute("SELECT decision FROM shadow ORDER BY id")
+            if intent_prefix is None
+            or json.loads(row["decision"]).get("mode")
+            in ("evaluated shadow", "preprod execution")
+            and "search" in json.loads(row["decision"])
         ],
         "limitations": [
             "Controlled own-order fills; not evidence of organic demand or profitable trading.",
@@ -149,13 +155,18 @@ def main():
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--state-dir", type=Path, default=Path("state"))
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--intent-prefix", help="Export only this qualification sequence"
+    )
     args = parser.parse_args()
     profile = load_profile(args.config, "preprod")
     wallet, _ = load_wallet(profile, args.manifest)
     provider = Koios(profile)
     journal = Journal(profile.state_path(args.state_dir), profile)
     try:
-        evidence = capture(profile, journal, wallet, provider)
+        evidence = capture(
+            profile, journal, wallet, provider, intent_prefix=args.intent_prefix
+        )
         args.output.write_text(json.dumps(evidence, indent=2) + "\n")
         print(
             f"Saved {len(evidence['transactions'])} confirmed transactions to {args.output}"

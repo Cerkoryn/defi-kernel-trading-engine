@@ -6,11 +6,8 @@ from collections import Counter
 from dataclasses import asdict
 from uuid import uuid4
 
-from charli3_dendrite.dexs.core.errors import InvalidPoolError
-from pycardano import Transaction
-
 from .coordinator import Coordinator
-from .domain import KernelError, ceil_fraction, json_value
+from .domain import KernelError, ceil_fraction
 from .protocols import DEPLOYMENTS, decode_swaps, row_assets
 from .runtime import bind_wallet
 from .settlement import OrderObserver
@@ -61,50 +58,9 @@ class TradingEngine:
         return self.preview_cancel or bool(row and row[0])
 
     def costs(self):
-        paid, reserved, venue = 0, 0, 0
-        for row in self.journal.db.execute(
-            "SELECT o.unsigned,o.metadata,o.dependencies,t.status FROM outbox o JOIN transactions t USING(intent)"
-        ):
-            body = Transaction.from_cbor(row["unsigned"]).transaction_body
-            if row["status"] == "confirmed":
-                paid += body.fee
-                metadata = json.loads(row["metadata"])
-                fixed = metadata.get("venue_fee_lovelace")
-                if fixed is None and metadata.get("action") in ("buy-base", "compose"):
-                    import cbor2
+        from .trading import execution_costs
 
-                    from .protocols import DANO_CONFIG
-
-                    config = DANO_CONFIG[self.provider.profile.name]
-                    dependency = next(
-                        r
-                        for r in json.loads(row["dependencies"])
-                        if f"{r['tx_hash']}#{r['tx_index']}" == str(config)
-                    )
-                    fixed = cbor2.loads(
-                        bytes.fromhex(dependency["inline_datum"]["bytes"])
-                    ).value[1]
-                venue += fixed or 0
-            elif row["status"] == "failed":
-                from .signing import ref_text
-
-                refs = set(map(ref_text, body.collateral or []))
-                paid += (
-                    body.total_collateral
-                    if body.total_collateral is not None
-                    else sum(
-                        int(r["value"])
-                        for r in json.loads(row["dependencies"])
-                        if f"{r['tx_hash']}#{r['tx_index']}" in refs
-                    )
-                )
-            elif row["status"] not in TERMINAL:
-                reserved += body.fee
-        return {
-            "ledger_fees_paid_lovelace": paid,
-            "pending_fee_reserve_lovelace": reserved,
-            "venue_fees_paid_lovelace": venue,
-        }
+        return execution_costs(self.provider, self.journal)
 
     def reconcile(self):
         projection = self.observer.sync()
@@ -458,43 +414,13 @@ class TradingEngine:
         route_only=False,
         emit=lambda result: None,
     ):
-        if interval < 1 or iterations is not None and iterations < 1:
-            raise KernelError("Invalid polling bounds")
-        self.journal.start_run(self.clock())
-        count = 0
-        result = {"action": "stopped"}
-        try:
-            while not self.journal.stop_requested():
-                try:
-                    result = self.tick(route_only=route_only)
-                except (KernelError, InvalidPoolError) as error:
-                    result = {
-                        "mode": "preprod execution"
-                        if self.execute
-                        else "live-data shadow",
-                        "observed_at": self.clock(),
-                        "action": "paused",
-                        "reason": str(error),
-                    }
-                self.journal.record_shadow(
-                    self.clock(), json.dumps(result, default=json_value)
-                )
-                self.journal.heartbeat(
-                    self.clock(), "executing" if self.execute else "shadow"
-                )
-                emit(result)
-                count += 1
-                if (
-                    iterations is not None
-                    and count >= iterations
-                    or cancel_only
-                    and result.get("action") == "cancelled"
-                ):
-                    break
-                remaining = interval
-                while remaining > 0 and not self.journal.stop_requested():
-                    self.sleep(min(1, remaining))
-                    remaining -= 1
-        finally:
-            self.journal.heartbeat(self.clock(), "stopped")
-        return result
+        from .runtime import poll
+
+        return poll(
+            self,
+            tick=lambda: self.tick(route_only=route_only),
+            interval=interval,
+            iterations=iterations,
+            emit=emit,
+            finished=lambda result: cancel_only and result.get("action") == "cancelled",
+        )

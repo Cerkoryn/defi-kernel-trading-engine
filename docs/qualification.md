@@ -2,6 +2,10 @@
 
 This records source, read-path and execution qualification. Published Swaps v1 and Dano have passed hosted fixture evaluation and designated preprod execution, including an atomic two-leg transaction. The source repository initially contained only the implementation brief. See [live execution evidence](../evidence/preprod-live-execution.json) and [operator commands](preprod-execution.md).
 
+## September 8 direct-venue increment
+
+Arbitrage additionally supports **Swaps v1 two-way, Splash CPP, Genius Yield v1.1 and SaturnSwap V3 uncovered orders on Preprod**. All four are enabled. [Venue qualification](venues.md) records exact deployment boundaries, public discovery and 17 final hosted Plutus evaluations, including four- and five-hop mixed routes. This supersedes the historical two-way/alternative-venue exclusions below for arbitrage fills; maker publication and Mainnet execution are unchanged. These new fixtures use synthetic inputs and do not claim live settlement.
+
 ## Pins and reproducibility
 
 `uv.lock` pins the full dependency graph. Tested with Python 3.12.14, Dendrite 1.5.10 at `0a1e02505af9d92506e8adbaf42307d923b1f061`, PyCardano 0.18.0, and cbor2 5.9.0. PyCardano's datum deserializer requires `typing.Union`; lint modernization to `A | B` breaks decoding and is disabled specifically for the datum adapter.
@@ -28,7 +32,7 @@ Published v1 uses spending hash `01fa3646…`, beacon `47cec2a1…`, a ten-field
 
 Packaged spending scripts are copied from pinned upstream blueprints and hash-checked with the proper Plutus language. All full hashes and source links are in `src/defi_kernel/data/deployments.json`. Upstream [VERSIONS.md](https://github.com/fallen-icarus/cardano-swaps/blob/5657d09c2f85dec74b28f57ec6e71cfd283620e9/VERSIONS.md) reports v1 audited and published v2 unaudited; this work is not an independent audit. The historical expiration code is outside the reported v1 scope.
 
-**Selected Swaps target: published v1 one-way orders**, using two independently funded orders for bids/asks. Its missing expiration requires runtime order-age management. The adapter reuses Dendrite beacon algorithms, field types and redeemers with the ten-field v1 datum and v1 beacon dispatch. Create-both-sides, fill and close passed hosted preprod evaluation, as did the composed fixture below. Each was rebuilt with measured budgets and evaluated again. Two-way operations remain unsupported.
+**Selected Swaps target: published v1 one-way orders**, using two independently funded orders for bids/asks. Its missing expiration requires runtime order-age management. The adapter reuses Dendrite beacon algorithms, field types and redeemers with the ten-field v1 datum and v1 beacon dispatch. Create-both-sides, fill and close passed hosted preprod evaluation, as did the composed fixture below. Each was rebuilt with measured budgets and evaluated again. Two-way maker operations were exercised by the [retired Preprod campaign](preprod-campaign-review.md); the production strategy exposes direct fills.
 
 ## Staking credential versus delegation
 
@@ -100,3 +104,7 @@ The CLI runs continuous live-data shadow observations with actual address invent
 The independent final inspector checks exact inputs/references, committed protocol outputs, change destinations, asset deltas, mint/burn, withdrawals, signer identities, fees, collateral and validity. Local signing requires a fresh final-evaluation receipt for the exact bytes, dependency rechecks, the correct payment/stake keys and a separate mainnet gate. The authorized disposable preprod keys remain private local files.
 
 Automatic publication, fill/continuation accounting, staged repricing, inventory rebalancing and tracked cancellation are connected through one market configuration. The expanded `evidence/preprod-mvp-execution.json` records actual strategy execution and decisions, separately from synthetic fixtures. Confirmed collateral is released; spent-input tombstones prevent stale reuse. Signed expiry requires mature canonical and explicit input evidence; competing spends and phase-2 failures have distinct recovery paths. Canonical order replay reverses rollback effects without duplicate fills. Restart, unknown outcomes, cancellation races and rollback are exercised with deterministic provider fixtures; real chain failures were not deliberately induced. Second-provider live verification remains outstanding without credentials and does not block the selected Koios MVP, as specified in the brief.
+
+## Atomic arbitrage follow-up
+
+The [arbitrage qualification](arbitrage.md#qualification-evidence) extends the original single-pair MVP with confirmed three- and four-hop transactions, bounded allowlisted cycle search and zero intermediate wallet balances. Multiple Dano pools and a native-token Dano pool also passed hosted evaluation with synthetic inputs; these probes are distinguished from actual ledger confirmation. The pinned SDKs and execution network remain unchanged.

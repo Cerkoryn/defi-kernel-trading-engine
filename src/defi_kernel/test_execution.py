@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pycardano import Address, ScriptHash, TransactionOutput
 
-from .chain_context import KoiosChainContext, to_utxo
+from .chain_context import ProviderChainContext, to_utxo
 from .dendrite_bridge import DANO_REFERENCE, DanoSession, protocol_epoch
 from .domain import Asset, KernelError, OutRef
 from .protocols import (
@@ -54,9 +54,7 @@ def prepare_test_action(
     if data["chain_id"] != profile.chain_id:
         raise KernelError("Test market chain identity mismatch")
     base, ada = Asset.from_unit(profile.name, data["base_unit"]), Asset(profile.name)
-    observed = provider.scan(
-        "address_utxos", {"_addresses": [wallet["address"]], "_extended": True}
-    )
+    observed = provider.address_utxos(wallet["address"])
     reserved = {r[0] for r in journal.db.execute("SELECT ref FROM reservations")}
     available = [
         r
@@ -69,7 +67,7 @@ def prepare_test_action(
         raise KernelError(
             "No confirmed free wallet UTxOs; wait for faucet funding or reconciliation"
         )
-    context = KoiosChainContext(provider)
+    context = ProviderChainContext(provider)
     builder = CompositionBuilder(context)
     builder.validity_start, builder.ttl = (
         context.last_block_slot - 60,
@@ -123,9 +121,7 @@ def prepare_test_action(
     )
 
     if action in ("create", "fill", "compose", "close"):
-        observation = provider.scan(
-            "address_utxos", {"_addresses": [str(order_address)], "_extended": True}
-        )
+        observation = provider.address_utxos(str(order_address))
         for row in observation.rows:
             decoded = decode_swaps(row, profile)
             if {decoded.offer, decoded.ask} != {base, ada}:
@@ -219,9 +215,7 @@ def prepare_test_action(
         rate, fixed = dano_config(provider)
         original = decode_dano(data["pool"], profile, platform_fee_rate=rate)
         nft = original.pool_id
-        observation = provider.scan(
-            "asset_utxos", {"_asset_list": [[nft[:56], nft[56:]]], "_extended": True}
-        )
+        observation = provider.asset_utxos(nft[:56], nft[56:])
         if len(observation.rows) != 1:
             raise KernelError("Dano validity NFT continuation is absent or ambiguous")
         pool_row = observation.rows[0]

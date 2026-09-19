@@ -1,13 +1,14 @@
 """Durable, bounded execution of independently authorized transaction candidates."""
 
 from .domain import KernelError
-from .execution import evaluate_final
-from .providers import UnknownSubmission
+from .execution import validate_candidate
+from .providers import ProviderLag, UnknownSubmission
 
 
 class Coordinator:
-    def __init__(self, provider, journal):
+    def __init__(self, provider, journal, *, before_submit=None):
         self.provider, self.journal = provider, journal
+        self.before_submit = before_submit
 
     def prepare(
         self,
@@ -19,6 +20,9 @@ class Coordinator:
         signer,
         metadata,
     ):
+        from .arbitrage_risk import check_candidate
+
+        self.journal.require_no_execution_incident()
         if (
             context.profile != self.provider.profile
             or context.profile != self.journal.profile
@@ -30,20 +34,15 @@ class Coordinator:
             raise KernelError(
                 "Wallet requires rollback reconciliation before new execution"
             )
-        from .chain_context import to_utxo
-        from .signing import inspect_transaction
-
-        fresh = self.provider.recheck_dependencies(dependencies)
-        inspect_transaction(
-            transaction,
-            authorization,
-            context,
-            {
-                f"{r['tx_hash']}#{r['tx_index']}": to_utxo(r, context.profile)
-                for r in fresh
-            },
+        receipt, _, _ = validate_candidate(
+            self.provider, transaction, authorization, context, dependencies
         )
-        receipt = evaluate_final(transaction, context)
+        check_candidate(self.journal, transaction, dependencies, metadata)
+        if (
+            metadata.get("submit_before") is not None
+            and self.provider.clock() >= metadata["submit_before"]
+        ):
+            raise KernelError("Candidate submission deadline elapsed before signing")
         from dataclasses import asdict
 
         self.journal.prepare_candidate(
@@ -59,16 +58,59 @@ class Coordinator:
     def submit(self, intent):
         import json
 
+        from .arbitrage_risk import check_candidate
+        from .signing import decode_candidate
+
         entry = self.journal.outbox_entry(intent)
+        metadata = json.loads(entry["metadata"])
+        deadline = metadata.get("submit_before")
+        risk = check_candidate(
+            self.journal,
+            decode_candidate(entry["unsigned"]),
+            json.loads(entry["dependencies"]),
+            metadata,
+            intent=intent,
+        )
         self.provider.verify_identity()
-        if int(self.provider.tip()["abs_slot"]) >= entry["expires_slot"]:
+        tip = self.provider.tip()
+        if risk and risk["anchor"]:
+            # A canonical descendant commits its ancestry: one lookup validates
+            # the settled accounting anchor without rereading every old trade.
+            height, block_hash = risk["anchor"]
+            canonical = self.provider.block_at_height(height)
+            if (
+                not canonical
+                or canonical["hash"] != block_hash
+                or int(tip["block_no"]) - height + 1
+                < self.provider.profile.confirmations
+            ):
+                raise KernelError(
+                    "Loss accounting anchor changed; reconcile before submission"
+                )
+        if int(tip["abs_slot"]) >= entry["expires_slot"]:
             raise KernelError(
                 "Prepared transaction expired; do not submit or replace automatically"
             )
         self.provider.recheck_dependencies(json.loads(entry["dependencies"]))
+        if deadline is not None and self.provider.clock() >= deadline:
+            raise KernelError(
+                "Submission deadline elapsed; retain original candidate for reconciliation"
+            )
+        # Last gate after read/evaluation diagnostics, before claiming a wire attempt.
+        if self.before_submit is not None:
+            self.before_submit(intent)
+        check_candidate(
+            self.journal,
+            decode_candidate(entry["unsigned"]),
+            json.loads(entry["dependencies"]),
+            metadata,
+            intent=intent,
+        )
         cbor = self.journal.claim_submission(intent)
         try:
-            result = self.provider.submit(cbor.hex())
+            result = self.provider.submit(
+                cbor.hex(), **({"deadline": deadline} if deadline is not None else {})
+            )
             if result != entry["txid"]:
                 raise UnknownSubmission("Provider returned a different transaction ID")
         except Exception as error:
@@ -80,7 +122,32 @@ class Coordinator:
         self.journal.mark_transaction(intent, "submitted")
         return result
 
-    def reconcile(self, intent, *, tip=None):
+    def reconcile_all(self, *, tip):
+        import json
+
+        entries = list(
+            self.journal.db.execute(
+                "SELECT t.intent,t.status,o.block_height,o.last_error FROM transactions t "
+                "JOIN outbox o USING(intent) WHERE t.status != 'aborted' ORDER BY t.rowid"
+            )
+        )
+        terminal = {"confirmed", "failed", "expired", "conflicted"}
+        for entry in entries:
+            if entry["status"] not in terminal:
+                self.reconcile(entry["intent"], tip=tip)
+        heights = {
+            json.loads(e["last_error"])["anchor_height"]
+            if e["status"] in ("expired", "conflicted")
+            else e["block_height"]
+            for e in entries
+            if e["status"] in terminal
+        }
+        blocks = self.provider.blocks_at_heights(heights) if heights else {}
+        for entry in entries:
+            if entry["status"] in terminal:
+                self.reconcile(entry["intent"], tip=tip, canonical_blocks=blocks)
+
+    def reconcile(self, intent, *, tip=None, canonical_blocks=None):
         p, j = self.provider, self.journal
         if tip is None:
             p.verify_identity()
@@ -92,7 +159,11 @@ class Coordinator:
             import json
 
             evidence = json.loads(entry["last_error"])
-            anchor = p.block_at_height(evidence["anchor_height"])
+            anchor = (
+                p.block_at_height(evidence["anchor_height"])
+                if canonical_blocks is None
+                else canonical_blocks.get(evidence["anchor_height"])
+            )
             if not anchor:
                 raise KernelError("Recovery anchor unavailable; pause execution")
             if anchor["hash"] == evidence["anchor"]["hash"]:
@@ -102,7 +173,11 @@ class Coordinator:
         # An unchanged canonical block preserves its transaction bodies. Check
         # the block every cycle instead of downloading the same CBOR repeatedly.
         if entry["status"] in ("confirmed", "failed"):
-            canonical = p.block_at_height(entry["block_height"])
+            canonical = (
+                p.block_at_height(entry["block_height"])
+                if canonical_blocks is None
+                else canonical_blocks.get(entry["block_height"])
+            )
             if not canonical:
                 raise KernelError("Inclusion block unavailable; pause execution")
             if canonical["hash"] == entry["block_hash"]:
@@ -138,16 +213,22 @@ class Coordinator:
         height, block_hash = info.get("block_height"), info.get("block_hash")
         if type(height) is not int or not isinstance(block_hash, str):
             raise KernelError("Incomplete transaction inclusion evidence")
+        # REST reads are not one snapshot: inclusion can arrive after the tip.
+        # Refresh once, then defer if the provider still cannot prove any depth.
+        if height > int(tip["block_no"]):
+            tip = p.tip()
         canonical = p.block_at_height(height)
         if not canonical or canonical["hash"] != block_hash:
             raise KernelError(
                 "Inclusion block is not verified canonical; resynchronize"
             )
-        if entry["block_hash"] and entry["block_hash"] != block_hash:
-            j.record_transaction_rollback(intent)
         confirmations = int(tip["block_no"]) - height + 1
         if confirmations <= 0:
-            raise KernelError("Inconsistent provider tip/inclusion height")
+            raise ProviderLag(
+                "Provider tip is behind transaction inclusion; waiting for consistent chain evidence"
+            )
+        if entry["block_hash"] and entry["block_hash"] != block_hash:
+            j.record_transaction_rollback(intent)
         confirmed = confirmations >= p.profile.confirmations
         if not info["valid_contract"]:
             if not confirmed:

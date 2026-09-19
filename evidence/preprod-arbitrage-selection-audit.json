@@ -1,0 +1,477 @@
+{
+  "mode": "Read-only historical log consistency and retrospective fee-prior fit; no chain re-verification, signing or submission",
+  "log_sha256": "ef8eacf23f0ef1f6153e877a6e1fb582d4f893e0087a5ec1db362de066f1cca8",
+  "run_id": "7dc6ea4cb6bd4423aa2bbfafbc5cbfa7",
+  "start": "2026-09-08T17:16:39.172518+00:00",
+  "end": "2026-09-08T17:42:04.660150+00:00",
+  "cycles": 35,
+  "confirmed_trades": 11,
+  "routes": {
+    "dano -> splash": 11
+  },
+  "net_lovelace": 942736648,
+  "network_fees_lovelace": 7609495,
+  "expected_confirmed_net_mismatches": 0,
+  "stop": {
+    "state": "stopped",
+    "pending": 0,
+    "realized_net_lovelace": 942736648,
+    "unverified_outcomes": 0
+  },
+  "selection_checks": [
+    {
+      "cycle_id": 1,
+      "selected_hops": 2,
+      "selected_net_lovelace": 105229552,
+      "maximum_evaluated_net_lovelace": 105229552,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 3,
+      "selected_hops": 2,
+      "selected_net_lovelace": 100589068,
+      "maximum_evaluated_net_lovelace": 100589068,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 7,
+      "selected_hops": 2,
+      "selected_net_lovelace": 96185561,
+      "maximum_evaluated_net_lovelace": 96185561,
+      "evaluated_hops": [
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 8,
+      "selected_hops": 2,
+      "selected_net_lovelace": 92069112,
+      "maximum_evaluated_net_lovelace": 92069112,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 10,
+      "selected_hops": 2,
+      "selected_net_lovelace": 88257912,
+      "maximum_evaluated_net_lovelace": 88257912,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 12,
+      "selected_hops": 2,
+      "selected_net_lovelace": 84702620,
+      "maximum_evaluated_net_lovelace": 84702620,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 16,
+      "selected_hops": 2,
+      "selected_net_lovelace": 81251644,
+      "maximum_evaluated_net_lovelace": 81251644,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 20,
+      "selected_hops": 2,
+      "selected_net_lovelace": 77930391,
+      "maximum_evaluated_net_lovelace": 77930391,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 26,
+      "selected_hops": 2,
+      "selected_net_lovelace": 75029065,
+      "maximum_evaluated_net_lovelace": 75029065,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 29,
+      "selected_hops": 2,
+      "selected_net_lovelace": 72125252,
+      "maximum_evaluated_net_lovelace": 72125252,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "cycle_id": 32,
+      "selected_hops": 2,
+      "selected_net_lovelace": 69366471,
+      "maximum_evaluated_net_lovelace": 69366471,
+      "evaluated_hops": [
+        2,
+        2,
+        2
+      ]
+    }
+  ],
+  "truncated_searches": 11,
+  "timings": {
+    "search_seconds": {
+      "median": 0.49984916002722457,
+      "max": 0.7297276509925723
+    },
+    "observation_seconds": {
+      "median": 20.808807432011236,
+      "max": 44.128233983996324
+    },
+    "build_and_evaluation_seconds": {
+      "median": 7.961574881977867,
+      "max": 8.886729557998478
+    }
+  },
+  "fee_comparison": [
+    {
+      "sample": "swaps-two-way:count=1:direction=0:full=False",
+      "venues": [
+        "swaps-v1-two-way"
+      ],
+      "actual_fee_lovelace": 321308,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 321000
+    },
+    {
+      "sample": "swaps-two-way:count=2:direction=0:full=False",
+      "venues": [
+        "swaps-v1-two-way",
+        "swaps-v1-two-way"
+      ],
+      "actual_fee_lovelace": 387363,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 387000
+    },
+    {
+      "sample": "swaps-two-way:count=1:direction=1:full=False",
+      "venues": [
+        "swaps-v1-two-way"
+      ],
+      "actual_fee_lovelace": 323507,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 321000
+    },
+    {
+      "sample": "splash-0:count=1:direction=0:full=False",
+      "venues": [
+        "splash"
+      ],
+      "actual_fee_lovelace": 406658,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 415000
+    },
+    {
+      "sample": "splash-0:count=2:direction=0:full=False",
+      "venues": [
+        "splash",
+        "splash"
+      ],
+      "actual_fee_lovelace": 479894,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 490000
+    },
+    {
+      "sample": "splash-0:count=1:direction=1:full=False",
+      "venues": [
+        "splash"
+      ],
+      "actual_fee_lovelace": 408568,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 415000
+    },
+    {
+      "sample": "splash-1:count=1:direction=0:full=False",
+      "venues": [
+        "splash"
+      ],
+      "actual_fee_lovelace": 418884,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 415000
+    },
+    {
+      "sample": "splash-1:count=2:direction=0:full=False",
+      "venues": [
+        "splash",
+        "splash"
+      ],
+      "actual_fee_lovelace": 493923,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 490000
+    },
+    {
+      "sample": "splash-1:count=1:direction=1:full=False",
+      "venues": [
+        "splash"
+      ],
+      "actual_fee_lovelace": 420618,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 415000
+    },
+    {
+      "sample": "genius:count=1:direction=0:full=False",
+      "venues": [
+        "genius-yield"
+      ],
+      "actual_fee_lovelace": 382523,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 383000
+    },
+    {
+      "sample": "genius:count=2:direction=0:full=False",
+      "venues": [
+        "genius-yield",
+        "genius-yield"
+      ],
+      "actual_fee_lovelace": 518045,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 519000
+    },
+    {
+      "sample": "genius:count=2:direction=0:full=True",
+      "venues": [
+        "genius-yield",
+        "genius-yield"
+      ],
+      "actual_fee_lovelace": 643380,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 519000
+    },
+    {
+      "sample": "saturn:count=1:direction=0:full=False",
+      "venues": [
+        "saturnswap"
+      ],
+      "actual_fee_lovelace": 469927,
+      "old_estimate_lovelace": 335000,
+      "new_estimate_lovelace": 470000
+    },
+    {
+      "sample": "saturn:count=2:direction=0:full=False",
+      "venues": [
+        "saturnswap",
+        "saturnswap"
+      ],
+      "actual_fee_lovelace": 561231,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 562000
+    },
+    {
+      "sample": "saturn:count=2:direction=0:full=True",
+      "venues": [
+        "saturnswap",
+        "saturnswap"
+      ],
+      "actual_fee_lovelace": 477761,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 562000
+    },
+    {
+      "sample": "mixed:count=1:direction=0:full=False",
+      "venues": [
+        "swaps-v1-two-way",
+        "splash",
+        "genius-yield",
+        "saturnswap"
+      ],
+      "actual_fee_lovelace": 1095181,
+      "old_estimate_lovelace": 875000,
+      "new_estimate_lovelace": 1124000
+    },
+    {
+      "sample": "mixed-dano:count=1:direction=0:full=False",
+      "venues": [
+        "swaps-v1-two-way",
+        "splash",
+        "genius-yield",
+        "saturnswap",
+        "dano"
+      ],
+      "actual_fee_lovelace": 1383036,
+      "old_estimate_lovelace": 1055000,
+      "new_estimate_lovelace": 1387000
+    },
+    {
+      "sample": "three-swaps",
+      "venues": [
+        "swaps-v1",
+        "swaps-v1",
+        "swaps-v1"
+      ],
+      "actual_fee_lovelace": 432623,
+      "old_estimate_lovelace": 575000,
+      "new_estimate_lovelace": 431000
+    },
+    {
+      "sample": "two-dano",
+      "venues": [
+        "dano",
+        "dano"
+      ],
+      "actual_fee_lovelace": 532299,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 533000
+    },
+    {
+      "sample": "swaps-dano-dano",
+      "venues": [
+        "swaps-v1",
+        "dano",
+        "dano"
+      ],
+      "actual_fee_lovelace": 676435,
+      "old_estimate_lovelace": 655000,
+      "new_estimate_lovelace": 673000
+    },
+    {
+      "sample": "logged-trade-1",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 720377,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-2",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 679569,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-3",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 679569,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-4",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 720708,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-5",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 722506,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-6",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 681677,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-7",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 680489,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-8",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 679569,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-9",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 681677,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-10",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 681677,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    },
+    {
+      "sample": "logged-trade-11",
+      "venues": [
+        "dano",
+        "splash"
+      ],
+      "actual_fee_lovelace": 681677,
+      "old_estimate_lovelace": 515000,
+      "new_estimate_lovelace": 678000
+    }
+  ],
+  "mean_absolute_error_lovelace": {
+    "old": 115965,
+    "new": 14271
+  },
+  "limitations": [
+    "Search was bounded and the log does not retain all market rows; global optimality cannot be replayed.",
+    "Fee priors were fitted using these evaluation fixtures; this is not an independent holdout validation."
+  ]
+}

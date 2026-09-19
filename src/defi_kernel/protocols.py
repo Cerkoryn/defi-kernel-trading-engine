@@ -2,6 +2,7 @@
 
 import json
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from fractions import Fraction
 from importlib.resources import files
@@ -10,6 +11,12 @@ from typing import Union
 import cbor2
 from charli3_dendrite.dataclasses.datums import PlutusNone
 from charli3_dendrite.dexs.amm.dano import DanoCLMMState
+from charli3_dendrite.dexs.core.errors import (
+    InvalidLPError,
+    InvalidPoolError,
+    NoAssetsError,
+    NotAPoolError,
+)
 from charli3_dendrite.dexs.ob.cardanoswaps import (
     CardanoSwapsRational,
     CardanoSwapsSomeInt,
@@ -38,6 +45,8 @@ DANO_CONFIG = {
 }
 
 
+# Mainnet defaults require this read-only adapter until explicit deployment support.
+# https://github.com/Charli3-Official/charli3-dendrite/issues/224
 class DanoPreprodReadState(DanoCLMMState):
     """Same datum/math with the SDK's preprod NFT policy; never builds transactions."""
 
@@ -71,6 +80,8 @@ def dano_config(provider):
     return rate, fee
 
 
+# Keep the published-v1 ABI separate until its upstream adapter is qualified.
+# https://github.com/Charli3-Official/charli3-dendrite/issues/225
 @dataclass
 class SwapsV1Datum(PlutusData):
     """Published v1 ABI: ten fields, no expiration. Reuse Dendrite field types."""
@@ -85,6 +96,26 @@ class SwapsV1Datum(PlutusData):
     ask_name: bytes
     ask_beacon: bytes
     swap_price: CardanoSwapsRational
+    # A | B fails decoding; remove the UP007 exception when this round-trips upstream.
+    # https://github.com/Python-Cardano/pycardano/issues/287
+    prev_input: Union[CardanoSwapsSomeOutRef, PlutusNone]
+
+
+@dataclass
+class SwapsTwoWayDatum(PlutusData):
+    """Audited v1 two-way ABI; prices are independent, not reciprocal."""
+
+    CONSTR_ID = 0
+    beacon_id: bytes
+    pair_beacon: bytes
+    asset1_id: bytes
+    asset1_name: bytes
+    asset1_beacon: bytes
+    asset2_id: bytes
+    asset2_name: bytes
+    asset2_beacon: bytes
+    asset1_price: CardanoSwapsRational
+    asset2_price: CardanoSwapsRational
     prev_input: Union[CardanoSwapsSomeOutRef, PlutusNone]
 
 
@@ -111,17 +142,22 @@ def row_assets(row: dict, network: str) -> dict[str, int]:
 def checked_datum(row, expected_fields):
     if row.get("is_spent") is not False:
         raise KernelError("Candidate is spent or spend status is unverified")
-    raw = (row.get("inline_datum") or {}).get("bytes")
+    raw = (row.get("inline_datum") or {}).get("bytes") or row.get("datum_cbor")
     if not raw:
         if row.get("reference_script"):
             raise KernelError(
                 "Reference-script output without an inline order/pool datum"
             )
         raise KernelError("Candidate has no inline datum")
-    data = cbor2.loads(bytes.fromhex(raw))
+    try:
+        data = cbor2.loads(bytes.fromhex(raw))
+    except (cbor2.CBORDecodeError, ValueError, TypeError):
+        raise KernelError("Invalid datum CBOR") from None
     if (
         not isinstance(data, cbor2.CBORTag)
         or data.tag != 121
+        or not isinstance(data.value, Sequence)
+        or isinstance(data.value, (str, bytes))
         or len(data.value) != expected_fields
     ):
         raise KernelError("Datum does not match the selected deployment schema")
@@ -250,7 +286,11 @@ def decode_dano(row, profile, *, platform_fee_rate: int):
     nfts = {u: q for u, q in values["assets"].items() if u.startswith(policy)}
     if len(nfts) != 1 or next(iter(nfts.values())) != 1:
         raise KernelError("Pool validity NFT missing or ambiguous")
-    state = cls.model_validate(values)
+    try:
+        state = cls.model_validate(values)
+    except (NotAPoolError, InvalidPoolError, InvalidLPError, NoAssetsError) as error:
+        # SDK row-validation errors must reject this pool, not abort discovery.
+        raise KernelError(f"Invalid Dano pool: {type(error).__name__}") from error
     if not 0 <= platform_fee_rate < 10000:
         raise KernelError("Invalid Dano protocol fee")
     state.platform_fee_rate = platform_fee_rate

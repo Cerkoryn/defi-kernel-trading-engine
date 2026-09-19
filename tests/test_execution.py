@@ -38,7 +38,16 @@ def measured_budgets():
     }
 
 
-def test_final_candidate_reproduces_successful_hosted_evaluation():
+def test_historical_candidate_reproduces_successful_hosted_evaluation(monkeypatch):
+    from pycardano import TransactionBuilder
+
+    from defi_kernel.transactions import CompositionBuilder
+
+    # Replay historical qualification with its original fee accounting. New
+    # candidates use corrected reference fees, covered by separate regressions.
+    monkeypatch.setattr(
+        CompositionBuilder, "_ref_script_size", TransactionBuilder._ref_script_size
+    )
     report, budgets = measured_budgets()
     tx, _, context, _, _ = make_candidate(budgets=budgets)
     assert report["http_status"] == 200
@@ -110,6 +119,7 @@ def test_local_signer_checks_authority_and_signs_unchanged_body(tmp_path):
         tip=lambda: {"abs_slot": context.last_block_slot},
     )
     context.evaluate_tx_cbor = lambda cbor: budgets
+    context.profile = replace(context.profile, max_request_bytes=16384)
     receipt = evaluate_final(tx, context)
     signed = LocalSigner(payment_path, stake_path).sign(
         tx, auth, context, rows, receipt
@@ -140,11 +150,76 @@ def test_local_signer_checks_authority_and_signs_unchanged_body(tmp_path):
         LocalSigner(wrong_path).sign(tx, auth, context, rows, receipt)
 
 
+def test_chunked_dano_redeemers_survive_inspection_signing_and_submission_claim(
+    tmp_path,
+):
+    from pycardano import Transaction
+    from test_arbitrage import make_dano_cycle
+
+    from defi_kernel.coordinator import Coordinator
+    from defi_kernel.journal import Journal
+    from defi_kernel.signing import decode_candidate
+
+    key = PaymentSigningKey.generate()
+    path = tmp_path / "payment.skey"
+    key.save(str(path))
+    path.chmod(0o600)
+    owner = Address(key.to_verification_key().hash(), network=Network.TESTNET)
+    tx, auth, metadata, rows, context, _ = make_dano_cycle(owner=owner)
+    encoded = tx.to_cbor()
+    # Two pools already exceed Plutus's 64-byte chunk boundary (70 bytes).
+    assert Transaction.from_cbor(encoded).to_cbor() != encoded
+    assert decode_candidate(encoded).to_cbor() == encoded
+    provider = SimpleNamespace(
+        profile=context.profile,
+        clock=lambda: EVIDENCE["observed_at"],
+        recheck_dependencies=lambda rows: rows,
+        tip=lambda: {"abs_slot": context.last_block_slot},
+    )
+    context.provider = provider
+    context.evaluate_tx_cbor = lambda cbor: {
+        f"{k.tag.name.lower()}:{k.index}": v.ex_units
+        for k, v in tx.transaction_witness_set.redeemer.items()
+    }
+    journal = Journal(context.profile.state_path(tmp_path), context.profile)
+    coordinator = Coordinator(provider, journal)
+    signer = LocalSigner(path)
+    # Trailing bytes ignored by the SDK must still fail closed before reservation.
+    with pytest.raises(KernelError, match="CBOR round trip"):
+        coordinator.prepare(
+            "bad",
+            SimpleNamespace(to_cbor=lambda: encoded + b"\x00"),
+            auth,
+            context,
+            rows,
+            signer,
+            metadata,
+        )
+    assert not journal.status()["reservations"]
+    coordinator.prepare("dano", tx, auth, context, rows, signer, metadata)
+    wire = journal.claim_submission("dano")
+    signed = decode_candidate(wire)
+    from nacl.signing import VerifyKey
+
+    witness = signed.transaction_witness_set.vkey_witnesses[0]
+    VerifyKey(bytes(witness.vkey.payload)).verify(
+        signed.transaction_body.hash(), witness.signature
+    )
+    signed.transaction_witness_set.vkey_witnesses = None
+    assert signed.to_cbor() == encoded == journal.outbox_entry("dano")["unsigned"]
+    assert journal.outbox_entry("dano")["attempts"] == 1
+    journal.close()
+
+
 def test_era_conversion_covers_byron_transition_and_rejects_horizon():
     eras = json.loads(Path("evidence/preprod-era-summaries.json").read_text())["data"]
     clock = SlotClock(PROFILE, eras)
     assert clock.slot_at_ms(PROFILE.system_start * 1000 + 20_000) == 1
+    assert clock.time_at_slot(1) == PROFILE.system_start * 1000 + 20_000
     assert clock.slot_at_ms((PROFILE.system_start + 1_728_000) * 1000) == 86400
+    assert clock.time_at_slot(86400) == (PROFILE.system_start + 1_728_000) * 1000
+    with pytest.raises(KernelError, match="era horizon"):
+        clock.time_at_slot(eras[-1]["end"]["slot"])
     with pytest.raises(KernelError, match="era horizon"):
         clock.slot_at_ms(
             (PROFILE.system_start + eras[-1]["end"]["time"]["seconds"]) * 1000
@@ -152,7 +227,16 @@ def test_era_conversion_covers_byron_transition_and_rejects_horizon():
 
 
 @pytest.mark.parametrize("action", ["create", "fill", "close", "dano"])
-def test_individual_final_candidates_reproduce_hosted_evidence(action):
+def test_historical_individual_candidates_reproduce_hosted_evidence(
+    action, monkeypatch
+):
+    from pycardano import TransactionBuilder
+
+    from defi_kernel.transactions import CompositionBuilder
+
+    monkeypatch.setattr(
+        CompositionBuilder, "_ref_script_size", TransactionBuilder._ref_script_size
+    )
     report = json.loads(
         Path(f"evidence/preprod-{action}-final-evaluation.json").read_text()
     )

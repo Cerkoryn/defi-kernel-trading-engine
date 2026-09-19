@@ -1,0 +1,17 @@
+{
+  "chain_id": "1:1654041600:testnet",
+  "network": "preprod",
+  "assets": [
+    "lovelace",
+    "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5026655534441"
+  ],
+  "max_hops": 8,
+  "venues": [
+    "swaps-v1",
+    "dano",
+    "swaps-v1-two-way",
+    "splash",
+    "genius-yield",
+    "saturnswap"
+  ]
+}

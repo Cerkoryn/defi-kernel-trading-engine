@@ -1,0 +1,97 @@
+{
+  "mode": "Read-only public discovery; no signing or submission",
+  "enabled_venues": [
+    "swaps-v1",
+    "dano",
+    "swaps-v1-two-way",
+    "splash",
+    "genius-yield",
+    "saturnswap"
+  ],
+  "asset_allowlist": [
+    "lovelace",
+    "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+    "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+    "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5026655534441",
+    "bd976e131cfc3956b806967b06530e48c20ed5498b46a5eb836b61c2744d494c4b7632",
+    "c0f8644a01a6bf5db02f4afe30d604975e63dd274f1098a1738e561d4f74686572546f6b656e0a",
+    "d4fece6b39f7cd78a3f036b2ae6508c13524b863922da80f68dd9ab75553444d",
+    "e16c2dc8ae937e8d3790c7fd7168d7b994621ba14ca11415f39fed724d494e"
+  ],
+  "observations": [
+    {
+      "cache": "cold",
+      "observed_at": 1788887023.276801,
+      "discovery_seconds": 42.267,
+      "search_seconds": 0.332,
+      "venue_edges": {
+        "swaps-v1": 33,
+        "dano": 75,
+        "swaps-v1-two-way": 6,
+        "splash": 10,
+        "genius-yield": 0,
+        "saturnswap": 0
+      },
+      "rejected": {
+        "KernelError: Reference-script output without an inline order/pool datum": 4,
+        "KernelError: Datum does not match the selected deployment schema": 95,
+        "KernelError: Candidate has no inline datum": 2,
+        "swaps-v1-two-way: assets outside allowlist": 35,
+        "splash: assets outside allowlist": 18,
+        "genius-yield: assets outside allowlist": 232,
+        "saturnswap: assets outside allowlist": 9,
+        "KernelError: Saturn owner and fee recipient collide": 7,
+        "KernelError: Covered Saturn orders are not enabled": 4
+      },
+      "search": {
+        "expansions": 2102,
+        "cycles": 1024,
+        "size_attempts": 18137,
+        "sizing_exhausted": 0,
+        "rounding_rejected": 5136,
+        "search_truncated": true,
+        "cycles_sized": 1024,
+        "pre_fee_candidates": 552,
+        "distinct_candidate_cycles": 59
+      },
+      "plans": 552
+    },
+    {
+      "cache": "warm",
+      "observed_at": 1788887065.8763433,
+      "discovery_seconds": 18.894,
+      "search_seconds": 0.337,
+      "venue_edges": {
+        "swaps-v1": 33,
+        "dano": 75,
+        "swaps-v1-two-way": 6,
+        "splash": 10,
+        "genius-yield": 0,
+        "saturnswap": 0
+      },
+      "rejected": {
+        "KernelError: Reference-script output without an inline order/pool datum": 4,
+        "KernelError: Datum does not match the selected deployment schema": 95,
+        "KernelError: Candidate has no inline datum": 2,
+        "swaps-v1-two-way: assets outside allowlist": 35,
+        "splash: assets outside allowlist": 18,
+        "genius-yield: assets outside allowlist": 232,
+        "saturnswap: assets outside allowlist": 9,
+        "KernelError: Saturn owner and fee recipient collide": 7,
+        "KernelError: Covered Saturn orders are not enabled": 4
+      },
+      "search": {
+        "expansions": 2102,
+        "cycles": 1024,
+        "size_attempts": 18137,
+        "sizing_exhausted": 0,
+        "rounding_rejected": 5136,
+        "search_truncated": true,
+        "cycles_sized": 1024,
+        "pre_fee_candidates": 552,
+        "distinct_candidate_cycles": 59
+      },
+      "plans": 552
+    }
+  ]
+}

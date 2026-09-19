@@ -9,9 +9,13 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 /.coverage
+/.coverage.*
+/coverage.xml
 /htmlcov/
 /build/
 /dist/
+*.log
+*.log.*
 
 # Credentials and durable wallet state: never commit or discard during cleanup
 .env

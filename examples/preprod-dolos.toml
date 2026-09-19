@@ -1,0 +1,73 @@
+default_network = "preprod"
+
+[networks.preprod]
+network_magic = 1
+system_start = 1654041600
+address_network = "testnet"
+wallet_id = "mvp-test"
+max_request_bytes = 65536
+confirmations = 3
+
+[networks.preprod.capabilities]
+chain = "nas"
+# Dolos 1.6 misses Preprod's epoch-305 governance update. Keep derived ledger
+# state with the evaluator until repaired: docs/upstream-contributions.md#dolos-governance
+ledger = "koios-evaluator"
+index = "nas"
+observation = "nas"
+# Dolos also validates submissions against its stale ledger state.
+submission = "koios-evaluator"
+evaluation = "koios-evaluator"
+
+[networks.preprod.providers.nas]
+kind = "dolos"
+url = "http://192.168.0.3:13000"
+minikupo_url = "http://192.168.0.3:11442"
+allow_private_http = true
+request_interval = 0
+max_tip_age_seconds = 300
+
+# Lookup hints only. Every output is re-read and its script hash verified.
+# Refresh these if the publisher spends/moves a reference; never substitute script bytes.
+[networks.preprod.providers.nas.reference_scripts]
+"f002facfd69d51b63e7046c6d40349b0b17c8dd775ee415c66af3ccc" = "b5869203a1d7e7d1ad936405878434a6b8fd3c87a38c66a46527bfd61bc2626f#1"
+"9dee0659686c3ab807895c929e3284c11222affd710b09be690f924d" = "a85dbebcf7a9c27a2548191e6516b12140ec744c142248355ddeef8652ab071f#0"
+"87381f0bf416e2dae7497d3fcd8087cf677b3cb4b2aeba36ed8f8f79" = "3d733849c9bc1bfd57fdf0caf00207599171280f1eba4a0053edb56ade7e915a#1"
+"44376a5f63342097a4f20401088c62da272639e60644a9ec1d70f444" = "16647d6365020555d905d6e0edcf08b90a567886f875b40b3d7cec1c70482624#2"
+"53827a77e4ed3d5c211706708c0aa9b9a3be19db901b1cbf7fa515b8" = "16647d6365020555d905d6e0edcf08b90a567886f875b40b3d7cec1c70482624#1"
+
+# Additional live references verified on Preprod, 2026-09-12.
+"01fa36465dfe36e26c21fdbf720e4bdafcc0b86bb5367fca46012f56" = "95844b47daebc6bdfea65291fa04c225041fc98dff026bd7be4507160c588e99#1"
+"0e421b1c70f5cd2ef3f86e669252e3fff7da30583fcdfb55f869fb81" = "ca36fa70b7f504d8e1a4ab37e057ca56a433cfb47cce6aa8caebcd6faa3e5d5e#1"
+"1042023f59da79b3ed541ab8ad5aac8f87d1fbf8eb945622f9e69112" = "c75590b08078e7bb6a3144ff176f5cf429f50ab180a460e12fa5b8083eee1b3b#1"
+"1cf74a6726f183baf091dcae1083409ed3c6372b97257874d56984fc" = "a190ac1193443f8bbed04af9648c9e5aa47d0b87c242e5d3f88e9435eb6c740d#1"
+"2c2c293a776d2fecbe3bda6c348117c6dae2171a9eabf91841ccb3be" = "cf939d0acaa0ef5227926e0d142054996a238e0248fae6241c25f78da17b32fb#1"
+"2c66ebdb0ce697af2355d6d7db0f5eb81c66a2678a925a1b627dcd09" = "6e0cd94ecf079827fa1a1cfbee75812739f28e476ac8c584e371cb40bb44eb76#1"
+"31dfad3b752e6dcdb6db46ef4cb5c69377eb54bd5d0edb3f951e5b6b" = "2b15c87b8987f16fd347a871f2eaa8bfa5650795b4d025b5b1c96bf274cf8100#1"
+"42c4baa917bef46ff86a4c57defdafa32880c0c48ff4d89ea09b85fc" = "6c41add3f4b4b163b1db58e3367ea10a160b4e328adcbf3930f0cf41070f1733#1"
+"4704192d1ef269b5cd35d9b438c6b42d0a3a745b87e31f80c9c6d81a" = "c41cc53c69fd1f48a5f3b34323e887c1de2af0e1166ce3b72e8fb46e9a078177#2"
+"4be4c310ea6510785d4ab8d7e3b9587172587468fafaade89a6449e2" = "86d54f93741ff59926d3e2e5425a3a26c416d02e807c0bcfecd5d967ff8bc8be#1"
+"4df66dcbe10e22568b43ae440d5c99cb6f845045bd79ec1eb04de031" = "74bc04ea0fdcf0fdceb0f66faf084ae5e315fc042f9c32887b66fcb82f2795fd#1"
+"51c80a9c7e05d02643ede5e82ee86ae20e04a269964f665ecebb3450" = "3d2ec08223457a372f758e98eb238966603090d79577010d539dda6de2ec25c1#1"
+"5f16b3b1f2b468c2c9612e7b9dd39ece8d86bab0d87e4c9f2c93bac2" = "136795b7a8fbb93ea3ddd1f5809febb6a5b0c929d7f2fd524d5a06abef4f9bb4#1"
+"6aea9d5a9188e0b4c4e900b724ad629ab48b5692d7d0b3f53c79c799" = "2a61600300856d8756ef10225a2c4c170d70beac489388f1a677b20580b98225#2"
+"6ef88889c7dabd9dfee70b4c39257b435c59f924816e0dff01d8f2e0" = "d8ca8392fc0c2a37506d3a9f06065f60d5f1447da7ccc293da468712a6bad63b#1"
+"82992376b974df3f01d5dde19e0622d5d0bacc44a3f114962f12d4fd" = "3c78890006a2997cd2972d944ed2bc5d8b41472e22c7e68f1d9c75088e227c8e#1"
+"9c11a22b29368db410c5bb54d90de3f4f80586428f7cc11fdcde5542" = "cbf4871b28cf585e4fe023d59a27640457f3dc4a872eb0638c9e746b55c0c3ec#1"
+"a495f0d1be3049606ffa069268eaac510e0a75e1657ef0edf803aa3d" = "b81e4552af0b848b0b0205a4acec30393c9d47f7e9631abce375200895d1b347#1"
+"b73416b1c030fa89f812cda427628cc9e5d9daf4898adf04da372eca" = "ac34ba0ccfc059f6115f812331a1a786ec9e52219ac353bbec8ee1cdbe3f6127#1"
+"b9da0759ba57db77cc50bdb2537adbf8a9504d831c5622bd1ee52caa" = "e33e6e08a30f588a195aef9109e5597100857d92e46e55187a1fe6ce181e12bf#1"
+"ceaefcd3d587d6b1e56003f9b9272c901a180a0750555e7e1db00162" = "5d5c848ec5c17cb65e65393dac75752550d83132a2985e600fb172e60976982b#1"
+"da05238abe22ef97c55aa44c089859e05c8933e7ae0e3b3dfffe928f" = "aaa5c55c5628053cb5843c73df876bccebedb37db8997c2b44d395d239086409#2"
+"e2c2bb57c77a00f874381f94b0eb508ac97e9fc330654c94f5f724ca" = "29233a09a5cb1e982bbc28b1c1b4af40fb2d44e3071c98c2d47b0faf3d85c10f#1"
+"e94a4c2084df2cadfb8e81abf58f95b738756529edad065b9ba9ddce" = "9a3017933376715b5b27c68e806fc3f4a55a56570c73fee420fa2198f436fd90#1"
+"ec4d9550ceebaa568d239013a17a542c6ff5a1baf23dd49e79b50428" = "f6ce8fa012de499481e286cb3974cb4acdb235bf24e0bc4478001631c31eb19b#1"
+"ecb16cbd0d32f755fa1441c5027aa6a69ada8afb65ea52525a47788d" = "e851b810549ed06e18bfd33ef6411fa8afacbc8d6d5f3611410bf1bc48938366#1"
+"f2a7bf5a1300dd046626a02d9f337715374cb9cda458de7fea642624" = "90d526a22257b6697edf1de960dc6b4b182d31472abb5e62c9ee60b4f8113182#1"
+"f5e173d43c69fe82cd416e38152ee3567e11969cc7bacb7d6b4a9bee" = "8e6b48069cbc6bfb14def107cf65f8ff213d549f0ac645dc5ff7cfe33fc81f92#2"
+
+[networks.preprod.providers.koios-evaluator]
+kind = "koios"
+url = "https://preprod.koios.rest/api/v1"
+token_env = "KOIOS_API_KEY"
+request_interval = 0.25

@@ -14,6 +14,18 @@ class Unsupported(KernelError):
     pass
 
 
+class RequestTooLarge(KernelError):
+    """A local capacity rejection, not a provider outage or a retryable request."""
+
+    reason_code = "request_size"
+
+    def __init__(self, actual, limit):
+        self.actual, self.limit = actual, limit
+        super().__init__(
+            f"Request is {actual} bytes; provider request limit is {limit} bytes"
+        )
+
+
 @dataclass(frozen=True)
 class Asset:
     network: str

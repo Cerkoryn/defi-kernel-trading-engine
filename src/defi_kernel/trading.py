@@ -6,7 +6,7 @@ from fractions import Fraction
 from charli3_dendrite.dataclasses.models import Assets
 from pycardano import Address
 
-from .chain_context import KoiosChainContext, to_utxo
+from .chain_context import ProviderChainContext, to_utxo
 from .dendrite_bridge import DANO_REFERENCE, DanoSession, protocol_epoch
 from .domain import Asset, KernelError, OutRef, Quote, ceil_fraction
 from .protocols import (
@@ -107,15 +107,7 @@ def observe_pool(provider, market):
     rows = provider.utxos([market.pool])
     if not rows and market.pool_nft:
         nft = Asset.from_unit(provider.profile.name, market.pool_nft)
-        rows = list(
-            provider.scan(
-                "asset_utxos",
-                {
-                    "_asset_list": [[nft.policy.hex(), nft.name.hex()]],
-                    "_extended": True,
-                },
-            ).rows
-        )
+        rows = list(provider.asset_utxos(nft.policy.hex(), nft.name.hex()).rows)
     if len(rows) != 1:
         raise KernelError("Dano pool continuation is missing or ambiguous")
     row = rows[0]
@@ -144,10 +136,8 @@ def observe_pool(provider, market):
     return PoolObservation(row, pool, rows, rewards, reward, fixed, now)
 
 
-def wallet_inventory(provider, journal, owner, tip, limits):
-    observed = provider.scan(
-        "address_utxos", {"_addresses": [str(owner)], "_extended": True}
-    )
+def wallet_inventory(provider, journal, owner, tip, limits, *, require_collateral=True):
+    observed = provider.address_utxos(str(owner))
     if not observed.complete:
         raise KernelError("Incomplete wallet observation")
     reserved = {r[0] for r in journal.db.execute("SELECT ref FROM reservations")}
@@ -178,12 +168,13 @@ def wallet_inventory(provider, journal, owner, tip, limits):
         for r in rows
         if not r.get("asset_list") and int(r["value"]) == limits.collateral_lovelace
     ]
-    if not collateral:
+    if not collateral and require_collateral:
         raise KernelError("Dedicated confirmed collateral is unavailable")
-    rows.remove(collateral[0])
+    if collateral:
+        rows.remove(collateral[0])
     # A designated operating budget also keeps the untouched faucet remainder
     # outside coin selection. Protected tokens still count toward exposure.
-    return rows, collateral[0], protected
+    return rows, collateral[0] if collateral else None, protected
 
 
 def bid_token_exposure(output, profile, context):
@@ -239,7 +230,7 @@ def prepare_action(
     if profile.name != "preprod":
         raise KernelError("MVP execution is qualified only for preprod")
     owner = Address.from_primitive(wallet["address"])
-    context, dependencies = KoiosChainContext(provider), {}
+    context, dependencies = ProviderChainContext(provider), {}
     builder = CompositionBuilder(context)
     builder.validity_start, builder.ttl = (
         context.last_block_slot - 60,
@@ -501,4 +492,67 @@ def prepare_action(
             max_fee=limits.max_fee_lovelace,
             max_collateral=limits.collateral_lovelace,
         ),
+    }
+
+
+def collateral_loss(body, dependencies):
+    """Confirmed phase-2 loss; collateral return is already netted by total_collateral."""
+    from .signing import ref_text
+
+    refs = set(map(ref_text, body.collateral or []))
+    return (
+        body.total_collateral
+        if body.total_collateral is not None
+        else sum(
+            int(r["value"])
+            for r in dependencies
+            if f"{r['tx_hash']}#{r['tx_index']}" in refs
+        )
+    )
+
+
+def execution_costs(provider, journal):
+    """Lifetime costs include all strategies sharing this wallet journal."""
+    import json
+
+    from pycardano import Transaction
+
+    paid, reserved, venue = 0, 0, 0
+    for row in journal.db.execute(
+        "SELECT o.unsigned,o.metadata,o.dependencies,t.status FROM outbox o JOIN transactions t USING(intent)"
+    ):
+        body = Transaction.from_cbor(row["unsigned"]).transaction_body
+        if row["status"] == "confirmed":
+            paid += body.fee
+            metadata = json.loads(row["metadata"])
+            fixed = metadata.get("venue_fee_lovelace")
+            if fixed is None and metadata.get("action") in ("buy-base", "compose"):
+                import cbor2
+
+                from .protocols import DANO_CONFIG
+
+                config = DANO_CONFIG[provider.profile.name]
+                dependency = next(
+                    r
+                    for r in json.loads(row["dependencies"])
+                    if f"{r['tx_hash']}#{r['tx_index']}" == str(config)
+                )
+                fixed = cbor2.loads(
+                    bytes.fromhex(dependency["inline_datum"]["bytes"])
+                ).value[1]
+            venue += fixed or 0
+        elif row["status"] == "failed":
+            paid += collateral_loss(body, json.loads(row["dependencies"]))
+        elif row["status"] not in {
+            "confirmed",
+            "aborted",
+            "expired",
+            "conflicted",
+            "failed",
+        }:
+            reserved += body.fee
+    return {
+        "ledger_fees_paid_lovelace": paid,
+        "pending_fee_reserve_lovelace": reserved,
+        "venue_fees_paid_lovelace": venue,
     }

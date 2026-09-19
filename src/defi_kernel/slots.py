@@ -40,3 +40,14 @@ class SlotClock:
         raise KernelError(
             "Requested validity time is outside the provider's era horizon"
         )
+
+    def time_at_slot(self, slot):
+        for era in self.eras:
+            start, end = era["start"], era.get("end")
+            if start["slot"] <= slot and (end is None or slot < end["slot"]):
+                return (self.profile.system_start + start["time"]["seconds"]) * 1000 + (
+                    slot - start["slot"]
+                ) * era["parameters"]["slotLength"]["milliseconds"]
+        raise KernelError(
+            "Requested validity slot is outside the provider's era horizon"
+        )

@@ -10,11 +10,11 @@ from collections import Counter
 from dataclasses import replace
 
 import cbor2
-from pycardano import Address, Transaction, datum_hash
+from pycardano import Address, datum_hash
 
 from .domain import KernelError, ceil_fraction
 from .protocols import SwapsV1Datum, decode_swaps, row_assets
-from .signing import ref_text, value_units
+from .signing import decode_transaction, ref_text, value_units
 
 
 def output_row(txid, index, output, info):
@@ -70,7 +70,7 @@ def project_history(events, profile, order_address, metadata=None):
             e["txid"],
         ),
     ):
-        tx = Transaction.from_cbor(event["cbor"])
+        tx = decode_transaction(event["cbor"])
         body, info = tx.transaction_body, event["info"]
         txid = str(body.id)
         if txid != event["txid"] or tx.valid != info["valid_contract"]:
@@ -222,7 +222,7 @@ class OrderObserver:
 
     def sync(self):
         p, j = self.provider, self.journal
-        history = p.scan("address_txs", {"_addresses": [self.address]})
+        history = p.address_transactions(self.address)
         if not history.complete:
             raise KernelError("Incomplete order history; retain accounting")
         tip = history.tip_after
@@ -278,9 +278,7 @@ class OrderObserver:
             )
         }
         projection = project_history(events, p.profile, self.address, metadata)
-        observation = p.scan(
-            "address_utxos", {"_addresses": [self.address], "_extended": True}
-        )
+        observation = p.address_utxos(self.address)
         if not observation.complete:
             raise KernelError("Incomplete order UTxO observation; retain accounting")
         expected = {o["ref"]: o["row"] for o in projection["orders"] if o["live"]}

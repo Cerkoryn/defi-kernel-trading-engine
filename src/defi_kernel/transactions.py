@@ -25,13 +25,16 @@ from charli3_dendrite.dexs.ob.cardanoswaps import (
 from charli3_dendrite.utility import asset_to_value
 from pycardano import (
     Address,
+    NativeScript,
     NonEmptyOrderedSet,
     PlutusData,
     PlutusV2Script,
     Redeemer,
     ScriptHash,
+    Transaction,
     TransactionBuilder,
     TransactionOutput,
+    Value,
     VerificationKeyHash,
     plutus_script_hash,
 )
@@ -51,6 +54,8 @@ def _context(builder, profile):
         )
 
 
+# Published v1 uses different beacon dispatch; replace with its qualified adapter.
+# https://github.com/Charli3-Official/charli3-dendrite/issues/225
 @dataclass
 class V1CreateOrClose(PlutusData):
     CONSTR_ID = 0
@@ -59,7 +64,78 @@ class V1CreateOrClose(PlutusData):
 class CompositionBuilder(TransactionBuilder):
     """PyCardano 0.18 integration point: resolve protocol indices before budgets."""
 
+    collateral_fee_limit = None
+
+    def _ref_script_size(self):
+        # The SDK counts repeated uses of one reference input multiple times.
+        # Count input occurrences, not hashes; removal criteria:
+        # docs/upstream-contributions.md#reference-script-fee-accounting
+        inputs = {u.input: u for u in [*self.inputs, *self.reference_inputs]}
+        return sum(
+            len(u.output.script.to_cbor())
+            if isinstance(u.output.script, NativeScript)
+            else len(u.output.script)
+            for u in inputs.values()
+            if u.output.script is not None
+        )
+
+    def _set_collateral_return(self, collateral_return_address):
+        if self.collateral_fee_limit is None or not self._redeemer_list:
+            return super()._set_collateral_return(collateral_return_address)
+        # Size against our authorized fee ceiling, not maximum ledger resources.
+        # See docs/upstream-contributions.md#bounded-collateral.
+        if not self.collaterals or collateral_return_address is None:
+            raise KernelError(
+                "Script transaction requires explicit collateral and return address"
+            )
+        required = (
+            self.collateral_fee_limit * self.context.protocol_param.collateral_percent
+            + 99
+        ) // 100
+        total = sum((u.output.amount for u in self.collaterals), Value())
+        if total.coin < required:
+            raise KernelError(
+                f"Collateral insufficient: have {total.coin} lovelace; "
+                f"fee ceiling requires {required} lovelace"
+            )
+        returned = total - required
+        output = TransactionOutput(collateral_return_address, returned)
+        if returned.coin or returned.multi_asset:
+            minimum = min_lovelace(self.context, output=deepcopy(output))
+            if returned.coin < minimum:
+                raise KernelError(
+                    f"Collateral return insufficient: have {returned.coin} lovelace; "
+                    f"minimum {minimum} lovelace"
+                )
+            self._collateral_return = output
+        else:
+            self._collateral_return = None
+        self._total_collateral = required
+
+    def _estimate_execution_units(
+        self, change_address=None, merge_change=False, collateral_change_address=None
+    ):
+        if self.collateral_fee_limit is None:
+            return super()._estimate_execution_units(
+                change_address, merge_change, collateral_change_address
+            )
+        # The SDK creates a base-class copy, losing the bounded collateral hook.
+        # Preserve our hooks and linked Dano outputs; share only the chain context.
+        candidate = deepcopy(self, {id(self.context): self.context})
+        candidate._should_estimate_execution_units = False
+        self._should_estimate_execution_units = False
+        body = candidate.build(change_address, merge_change, collateral_change_address)
+        return self.context.evaluate_tx(
+            Transaction(
+                body,
+                candidate._build_fake_witness_set(),
+                auxiliary_data=candidate.auxiliary_data,
+            )
+        )
+
     def _set_redeemer_index(self):
+        # Private hook until a supported helper resolves payload indices and pool layout.
+        # https://github.com/Charli3-Official/charli3-dendrite/issues/12
         dano_outputs = getattr(self, "_kernel_dano_outputs", [])
         if any(
             actual is not expected
@@ -73,11 +149,26 @@ class CompositionBuilder(TransactionBuilder):
             resolve = getattr(redeemer.data, "set_idx", None)
             if resolve:
                 resolve(self)
+        # Bind by the spent out-ref and output identity, never equal redeemer data.
+        # Required when several Splash/Saturn inputs share one validator.
+        for data, utxo, output in getattr(self, "_kernel_indexed_spends", []):
+            indices = [i for i, u in enumerate(self.inputs) if u.input == utxo.input]
+            if len(indices) != 1:
+                raise KernelError("Indexed protocol input is missing or duplicated")
+            if output is None:
+                data.self_index = indices[0]
+            else:
+                outputs = [i for i, o in enumerate(self.outputs) if o is output]
+                if len(outputs) != 1:
+                    raise KernelError(
+                        "Indexed protocol payment is missing or duplicated"
+                    )
+                data.input_index, data.output_index = indices[0], outputs[0]
 
     def _build_tx_body(self):
         body = super()._build_tx_body()
-        # Upstream stores reference inputs in a Python set. Stable serialization
-        # is needed for reproducible body hashes and Dano's sorted reference index.
+        # Replace with qualified opt-in ordering; never sort imported transaction bytes.
+        # https://github.com/Python-Cardano/pycardano/issues/504
         if body.reference_inputs:
             body.reference_inputs = NonEmptyOrderedSet(
                 sorted(

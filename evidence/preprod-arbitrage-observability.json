@@ -1,0 +1,281 @@
+{
+  "mode": "read-only Preprod shadow; no signing or submission",
+  "started_at": "2026-09-07T18:16:22.738261+00:00",
+  "finished_at": "2026-09-07T18:18:17.521900+00:00",
+  "run_id": "c9161053612a4d54ac1155d73f3e8cdf",
+  "network": "preprod",
+  "configuration": {
+    "chain_id": "1:1654041600:testnet",
+    "network": "preprod",
+    "assets": [
+      "lovelace",
+      "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+      "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+      "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5026655534441",
+      "bd976e131cfc3956b806967b06530e48c20ed5498b46a5eb836b61c2744d494c4b7632",
+      "c0f8644a01a6bf5db02f4afe30d604975e63dd274f1098a1738e561d4f74686572546f6b656e0a",
+      "d4fece6b39f7cd78a3f036b2ae6508c13524b863922da80f68dd9ab75553444d",
+      "e16c2dc8ae937e8d3790c7fd7168d7b994621ba14ca11415f39fed724d494e"
+    ],
+    "max_hops": 4,
+    "max_search_seconds": 10,
+    "max_total_fees_lovelace": 50000000
+  },
+  "strategy_fingerprint": "033015a70e2cd1ec649ac1edb2efa9535a87713dc243f17e3e4461662f6e8f31",
+  "events": {
+    "start": 1,
+    "allowlist": 1,
+    "phase": 8,
+    "request": 338,
+    "logging_check": 2,
+    "funds": 1,
+    "cycle": 2,
+    "state": 1,
+    "opportunity": 2,
+    "health": 1,
+    "stop": 1
+  },
+  "new_transaction_intents": 0,
+  "pending_transactions_after": 0,
+  "realized_net_lovelace": 0,
+  "samples": [
+    {
+      "cycle_id": 1,
+      "observed_at": 1788804982.7389967,
+      "liquidity_observed_at": 1788804992.3943605,
+      "edge_count": 113,
+      "search": {
+        "expansions": 594,
+        "cycles": 256,
+        "size_attempts": 6012,
+        "sizing_exhausted": 0,
+        "rounding_rejected": 448,
+        "search_truncated": true,
+        "cycles_sized": 256,
+        "profitable_estimates": 670
+      },
+      "timings": {
+        "observation_seconds": 49.33831134898355,
+        "search_seconds": 0.4851579610258341,
+        "build_and_evaluation_seconds": 8.543739501968957
+      },
+      "funds": {
+        "operating": 2549679,
+        "collateral": 5000000,
+        "protected": 9964828295
+      },
+      "costs": {
+        "ledger_fees_paid_lovelace": 6940006,
+        "pending_fee_reserve_lovelace": 0,
+        "venue_fees_paid_lovelace": 400000
+      },
+      "cost_headroom_lovelace": 42659994,
+      "rejection_counts": {},
+      "selected": {
+        "route_id": "bcdb018b2660d4fe00df611d",
+        "path": [
+          "lovelace",
+          "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+          "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+          "lovelace"
+        ],
+        "hops": [
+          {
+            "ref": "8f3011901ff411dd08722b5cf05e1fe2164f0fbbf7dd10ebb49b83b640938986#0",
+            "venue": "dano",
+            "input_unit": "lovelace",
+            "output_unit": "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+            "amount_in": 1898356,
+            "amount_out": 947,
+            "fixed_fee": 100000
+          },
+          {
+            "ref": "67f5ffaaa4d04dbc6a793a7ad97b1d4f8b40bff216a2e10f5f4bf2b09a3268ce#1",
+            "venue": "dano",
+            "input_unit": "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+            "output_unit": "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+            "amount_in": 947,
+            "amount_out": 39851210,
+            "fixed_fee": 100000
+          },
+          {
+            "ref": "00fce40afee5139f05f1448cb63291f4f9fdc1df506bfb41a7d7a75b5e2594de#0",
+            "venue": "dano",
+            "input_unit": "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+            "output_unit": "lovelace",
+            "amount_in": 39851210,
+            "amount_out": 132296627,
+            "fixed_fee": 100000
+          }
+        ],
+        "notional_lovelace": 1898356,
+        "fee_lovelace": 1230279,
+        "net_profit_lovelace": 128867992,
+        "resources": {
+          "signed_bytes": 2413,
+          "reference_script_bytes": 13577,
+          "memory": 3282897,
+          "steps": 1104437656,
+          "provider_request_bytes": 4925
+        },
+        "final_evaluation": {
+          "chain_id": "1:1654041600:testnet",
+          "transaction_digest": "5ac58eb5ebfd949e9c7d91ee67f04be7255a488e386d9709dde83391e482096b",
+          "observed_at": 1788805035.740604,
+          "provider": "https://preprod.koios.rest/api/v1",
+          "budgets": [
+            [
+              "spend:0",
+              64772,
+              24486364
+            ],
+            [
+              "spend:1",
+              72324,
+              26692513
+            ],
+            [
+              "spend:2",
+              79876,
+              28898662
+            ],
+            [
+              "withdrawal:0",
+              2396578,
+              790488677
+            ],
+            [
+              "withdrawal:1",
+              57662,
+              23922658
+            ],
+            [
+              "withdrawal:2",
+              64538,
+              25875842
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "cycle_id": 2,
+      "observed_at": 1788805042.1152756,
+      "liquidity_observed_at": 1788805050.498183,
+      "edge_count": 113,
+      "search": {
+        "expansions": 592,
+        "cycles": 256,
+        "size_attempts": 5510,
+        "sizing_exhausted": 0,
+        "rounding_rejected": 576,
+        "search_truncated": true,
+        "cycles_sized": 256,
+        "profitable_estimates": 655
+      },
+      "timings": {
+        "observation_seconds": 46.831681110023055,
+        "search_seconds": 0.3665425909566693,
+        "build_and_evaluation_seconds": 8.187298690027092
+      },
+      "funds": {
+        "operating": 2549679,
+        "collateral": 5000000,
+        "protected": 9964828295
+      },
+      "costs": {
+        "ledger_fees_paid_lovelace": 6940006,
+        "pending_fee_reserve_lovelace": 0,
+        "venue_fees_paid_lovelace": 400000
+      },
+      "cost_headroom_lovelace": 42659994,
+      "rejection_counts": {},
+      "selected": {
+        "route_id": "4362fe250c0e07d859596e87",
+        "path": [
+          "lovelace",
+          "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+          "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+          "lovelace"
+        ],
+        "hops": [
+          {
+            "ref": "dfb19eb6898fc7dc9d05cbec2739ab620e03276deed44f9e7d1594dc1cad96fb#8",
+            "venue": "dano",
+            "input_unit": "lovelace",
+            "output_unit": "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+            "amount_in": 1898802,
+            "amount_out": 947,
+            "fixed_fee": 100000
+          },
+          {
+            "ref": "67f5ffaaa4d04dbc6a793a7ad97b1d4f8b40bff216a2e10f5f4bf2b09a3268ce#1",
+            "venue": "dano",
+            "input_unit": "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+            "output_unit": "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+            "amount_in": 947,
+            "amount_out": 39851210,
+            "fixed_fee": 100000
+          },
+          {
+            "ref": "00fce40afee5139f05f1448cb63291f4f9fdc1df506bfb41a7d7a75b5e2594de#0",
+            "venue": "dano",
+            "input_unit": "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+            "output_unit": "lovelace",
+            "amount_in": 39851210,
+            "amount_out": 132296627,
+            "fixed_fee": 100000
+          }
+        ],
+        "notional_lovelace": 1898802,
+        "fee_lovelace": 1229181,
+        "net_profit_lovelace": 128868644,
+        "resources": {
+          "signed_bytes": 2412,
+          "reference_script_bytes": 13577,
+          "memory": 3269871,
+          "steps": 1100249173,
+          "provider_request_bytes": 4923
+        },
+        "final_evaluation": {
+          "chain_id": "1:1654041600:testnet",
+          "transaction_digest": "8df454db8bb7e116a45f38a21983ef4848033da8f89b7b23f36d1ef6f28995f1",
+          "observed_at": 1788805092.4371865,
+          "provider": "https://preprod.koios.rest/api/v1",
+          "budgets": [
+            [
+              "spend:0",
+              64772,
+              24486364
+            ],
+            [
+              "spend:1",
+              72324,
+              26692513
+            ],
+            [
+              "spend:3",
+              79506,
+              28805168
+            ],
+            [
+              "withdrawal:0",
+              2386863,
+              787249263
+            ],
+            [
+              "withdrawal:1",
+              63768,
+              25718348
+            ],
+            [
+              "withdrawal:2",
+              57662,
+              23922658
+            ]
+          ]
+        }
+      }
+    }
+  ]
+}

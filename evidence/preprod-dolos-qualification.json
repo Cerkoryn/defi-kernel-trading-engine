@@ -1,0 +1,325 @@
+{
+  "recorded_at": 1789213030.0744011,
+  "network": "preprod",
+  "dolos_version": "1.6.0",
+  "qualification": "Hybrid ledger routing passed read-only and two evaluated shadow cycles; live submission and Dolos ledger remain unqualified",
+  "evaluation_access": "public Koios, paced at 2 seconds; configured API key unavailable in this session",
+  "read_only_comparison": {
+    "observed_at": 1789212981.7824247,
+    "wallet_outputs_compared": 29,
+    "historical_transaction_bodies_compared": [
+      "5baa18f15e3d2220d5b255166202560f19ba404deb33b6b7564f625f847308c5",
+      "7ecfef2b4190773140455f55a26e42cdb9f612c920c80da91095b7486616a481"
+    ],
+    "comparison": "byte-for-byte output/body equality; matching validity flags"
+  },
+  "discovery": {
+    "mode": "discovery only; unqualified local parameters; no build or evaluation",
+    "elapsed_seconds": 4.807329933042638,
+    "edges_by_venue": {
+      "swaps-v1": 33,
+      "dano": 61,
+      "swaps-v1-two-way": 6,
+      "splash": 10
+    },
+    "dependencies": 127,
+    "rejected": {
+      "KernelError: Datum does not match the selected deployment schema": 101,
+      "KernelError: Pool validity NFT missing or ambiguous": 2,
+      "KernelError: Invalid Dano pool: NotAPoolError": 1,
+      "KernelError: Candidate has no inline datum": 2,
+      "swaps-v1-two-way: assets outside allowlist": 35,
+      "splash: assets outside allowlist": 18,
+      "genius-yield: assets outside allowlist": 232,
+      "KernelError: Saturn owner and fee recipient collide": 9,
+      "saturnswap: assets outside allowlist": 9,
+      "KernelError: Covered Saturn orders are not enabled": 4
+    }
+  },
+  "additional_reference_hints_verified": 28,
+  "protocol_parameter_differences": {
+    "min_pool_cost": {
+      "dolos": 170000000,
+      "koios": 75000000
+    },
+    "max_tx_ex_mem": {
+      "dolos": 16500000,
+      "koios": 17500000
+    },
+    "max_block_ex_mem": {
+      "dolos": 72000000,
+      "koios": 77500000
+    }
+  },
+  "shadow": {
+    "run_id": "92079cd535b14c6086b0f8eebdadcf59",
+    "started_at": 1789212519.7933228,
+    "ended_at": 1789212564.6946564,
+    "final_state": "stopped",
+    "counts": {
+      "polls": 2,
+      "paused": 2,
+      "cycles": 0,
+      "cycles_sized": 0,
+      "pre_fee_candidates": 0,
+      "distinct_candidate_cycles": 0,
+      "evaluated_candidates": 0,
+      "build_rejections": 0,
+      "truncated_polls": 0
+    },
+    "pause_reason": "Chain/evaluator protocol parameters differ; new builds paused",
+    "signed_or_submitted": false,
+    "pending_transactions": 0,
+    "transaction_status_counts_after": {
+      "aborted": 4,
+      "confirmed": 68,
+      "expired": 1
+    }
+  },
+  "limits": [
+    "Original discovery-only probe used unqualified local parameters without building or evaluating.",
+    "Two evaluated shadow cycles passed with explicit Koios ledger/evaluation/submission routing; no live submission or extended soak was qualified.",
+    "Dolos v1.6 governance state remains stale; no NAS state repair or upgrade was performed.",
+    "Public Koios was paced at two seconds; normal configuration still requires KOIOS_API_KEY."
+  ],
+  "governance_diagnosis": {
+    "recorded_at": 1789214100.7411902,
+    "preprod_proposal": {
+      "proposal_tx_hash": "e641ec802bb109e150e920c6c0387e85f2efd30944a46d08d08212bde540f69c",
+      "proposal_index": 0,
+      "proposed_epoch": 303,
+      "ratified_epoch": 304,
+      "enacted_epoch": 305,
+      "expired_epoch": null,
+      "param_proposal": {
+        "max_tx_ex_mem": 17500000,
+        "min_pool_cost": 75000000,
+        "max_tx_ex_steps": 10000000000,
+        "max_block_ex_mem": 77500000,
+        "max_block_ex_steps": 20000000000
+      },
+      "proposal_description": {
+        "tag": "ParameterChange",
+        "contents": [
+          {
+            "txId": "4aa45fe4266c114201733bbc641164b4d3eac51081afeee12ddc92235b58f45c",
+            "govActionIx": 0
+          },
+          {
+            "minPoolCost": 75000000,
+            "maxTxExecutionUnits": {
+              "steps": 10000000000,
+              "memory": 17500000
+            },
+            "maxBlockExecutionUnits": {
+              "steps": 20000000000,
+              "memory": 77500000
+            }
+          },
+          "fa24fb305126805cf2164c161d852a0e7330cf988f1fe558cf7d4a64"
+        ]
+      }
+    },
+    "mainnet_proposal": {
+      "proposal_tx_hash": "ab474223d40e2e3540555364be27e161a809c33651408f43d84acff10c0ba306",
+      "proposal_index": 0,
+      "proposed_epoch": 646,
+      "ratified_epoch": null,
+      "enacted_epoch": null,
+      "expired_epoch": 653,
+      "param_proposal": {
+        "max_tx_ex_mem": 17500000,
+        "min_pool_cost": 75000000,
+        "max_tx_ex_steps": 10000000000,
+        "max_block_ex_mem": 77500000,
+        "max_block_ex_steps": 20000000000
+      }
+    },
+    "koios_epoch_parameters_observed": [
+      {
+        "epoch_no": 304,
+        "min_pool_cost": 170000000,
+        "max_tx_ex_mem": 16500000,
+        "max_block_ex_mem": 72000000
+      },
+      {
+        "epoch_no": 305,
+        "min_pool_cost": 75000000,
+        "max_tx_ex_mem": 17500000,
+        "max_block_ex_mem": 77500000
+      }
+    ],
+    "dolos_archived_proposal_original_body_hash": "e641ec802bb109e150e920c6c0387e85f2efd30944a46d08d08212bde540f69c",
+    "dolos_archived_proposal_cbor_sha256": "78c2a9d26ebee97433e4592a6aab89d29d8248f85f4839ab63caab7af084ae5b",
+    "cause": "Dolos v1.6.0 Preprod outcome table omits this proposal; Unknown outcome leaves ratified_epoch unset and prevents enactment.",
+    "sources": [
+      "https://preprod.koios.rest/api/v1/epoch_params?select=epoch_no,min_pool_cost,max_tx_ex_mem,max_block_ex_mem&order=epoch_no.desc&limit=30",
+      "https://preprod.koios.rest/api/v1/proposal_list?proposal_tx_hash=eq.e641ec802bb109e150e920c6c0387e85f2efd30944a46d08d08212bde540f69c",
+      "https://api.koios.rest/api/v1/proposal_list?proposal_tx_hash=eq.ab474223d40e2e3540555364be27e161a809c33651408f43d84acff10c0ba306",
+      "https://github.com/txpipe/dolos/blob/v1.6.0/crates/cardano/src/hacks.rs",
+      "https://github.com/txpipe/dolos/blob/v1.6.0/crates/cardano/src/model/proposals.rs"
+    ],
+    "nas_state_changed": false
+  },
+  "hybrid_requalification": {
+    "provider_check": {
+      "mode": "read-only; no signing, submission or journal writes",
+      "network": "preprod",
+      "capabilities": {
+        "chain": "nas",
+        "ledger": "koios-evaluator",
+        "index": "nas",
+        "observation": "nas",
+        "submission": "koios-evaluator",
+        "evaluation": "koios-evaluator"
+      },
+      "tip": {
+        "hash": "18e540e9c652d0290e933924c6438f4c167b41168e0a103b8132bd85db1d1048",
+        "block_height": 5168117,
+        "abs_slot": 133530786,
+        "block_time": 1789213986,
+        "epoch_no": 312,
+        "block_no": 5168117
+      },
+      "tip_age_seconds": 59.93642592430115,
+      "protocol_major": 11,
+      "cost_model_lengths": {
+        "PlutusV1": 332,
+        "PlutusV2": 332,
+        "PlutusV3": 350
+      },
+      "transactions": [
+        {
+          "txid": "5baa18f15e3d2220d5b255166202560f19ba404deb33b6b7564f625f847308c5",
+          "valid": true,
+          "block_hash": "48eaea1cde2fcdf7c81ac0a566b8aa7843104c99e4a3d6908dc41e00e79a3abd"
+        }
+      ],
+      "wallet_utxos": 29,
+      "discovery": {
+        "enabled_venues": [
+          "swaps-v1",
+          "dano",
+          "swaps-v1-two-way",
+          "splash",
+          "genius-yield",
+          "saturnswap"
+        ],
+        "edges_by_venue": {
+          "swaps-v1": 33,
+          "dano": 61,
+          "swaps-v1-two-way": 6,
+          "splash": 10
+        },
+        "dependencies": 127,
+        "rejected": {
+          "KernelError: Datum does not match the selected deployment schema": 101,
+          "KernelError: Pool validity NFT missing or ambiguous": 2,
+          "KernelError: Invalid Dano pool: NotAPoolError": 1,
+          "KernelError: Candidate has no inline datum": 2,
+          "swaps-v1-two-way: assets outside allowlist": 35,
+          "splash: assets outside allowlist": 18,
+          "genius-yield: assets outside allowlist": 232,
+          "KernelError: Saturn owner and fee recipient collide": 9,
+          "saturnswap: assets outside allowlist": 9,
+          "KernelError: Covered Saturn orders are not enabled": 4
+        }
+      },
+      "elapsed_seconds": 30.834,
+      "next_step": "Evaluated shadow; this read-only check does not qualify live submission"
+    },
+    "shadow": {
+      "id": "fa058e497bfe40b5ad6a3951e40f335d",
+      "started_at": 1789213858.517547,
+      "ended_at": 1789213980.3398287,
+      "state": "stopped",
+      "counts": {
+        "polls": 2,
+        "evaluated": 2,
+        "cycles": 1145,
+        "cycles_sized": 1145,
+        "pre_fee_candidates": 4971,
+        "distinct_candidate_cycles": 432,
+        "evaluated_candidates": 2,
+        "build_rejections": 0,
+        "truncated_polls": 2
+      },
+      "timings": {
+        "reconciliation_seconds": {
+          "count": 2,
+          "total": 1.959105064976029,
+          "max": 1.71832478500437
+        },
+        "observation_seconds": {
+          "count": 2,
+          "total": 51.461252732085995,
+          "max": 26.62676570599433
+        },
+        "search_seconds": {
+          "count": 2,
+          "total": 1.2334823039127514,
+          "max": 0.619059988996014
+        },
+        "build_and_evaluation_seconds": {
+          "count": 2,
+          "total": 37.084113484132104,
+          "max": 18.57324594806414
+        }
+      },
+      "signed_or_submitted": false,
+      "pending_transactions": 0,
+      "transaction_status_counts_after": {
+        "aborted": 4,
+        "confirmed": 68,
+        "expired": 1
+      }
+    },
+    "tests_passed": 358
+  },
+  "replacement": {
+    "recorded_at": 1789216236.672488,
+    "status": "Prepared and locally smoke-tested; NAS replacement and full qualification pending",
+    "release": "2.0.0-alpha.0",
+    "source_commit": "a08c9d130e6b6d4cdc43fe54228ff6dd4e0f88e4",
+    "image": "ghcr.io/txpipe/dolos:2.0.0-alpha.0@sha256:c91ea985f77542edc13b1cb5bd2f002c2df20f1669a517d72a3bf6663933aa59",
+    "platform": "linux/amd64",
+    "storage_version": "v4",
+    "bootstrap": "Daemon synchronizes from genesis via the configured Preprod relay; no snapshot or marker wrapper",
+    "image_verification": "Registry manifest and downloaded layer hashes verified; binary/genesis extracted directly from pinned image",
+    "binary_sha256": "af34d3c4b241b0a0e68440d7976a0a5142ee9ec2faddf601586c7ad49726d997",
+    "native_smoke": {
+      "location": "workstation; isolated temporary data and loopback APIs, not NAS Docker",
+      "fresh_storage_opened": true,
+      "api_start_and_restart_passed": true,
+      "network_magic": 1,
+      "health_version": "2.0.0-alpha.0-2.11.0",
+      "graceful_shutdown_exit_codes": [
+        0,
+        0
+      ],
+      "live_relay_probe": {
+        "sample_after_seconds": 12,
+        "height": 99,
+        "slot": 87460,
+        "epoch": 4,
+        "hash": "612825aba093575acdcd9505c56c3954081756e0cc27457d602828e89b1268e2",
+        "shutdown_exit_code": 0
+      }
+    },
+    "tests": {
+      "full_suite_passed": 361,
+      "deployment_and_adapter_passed": 57,
+      "ruff_lint_and_format": "passed"
+    },
+    "nas_data_deleted": false,
+    "nas_app_updated": false,
+    "engine_ledger_and_submission": "Koios until rebuilt Dolos passes qualification",
+    "pending": [
+      "NAS image pull, relay connectivity and storage preflight",
+      "Scoped cleanup and app YAML replacement",
+      "Full synchronization and protocol parameter comparison",
+      "Wallet/history/venue checks and one-hour shadow including restart",
+      "At most one qualifying trade through Dolos, followed by confirmation/accounting"
+    ]
+  }
+}

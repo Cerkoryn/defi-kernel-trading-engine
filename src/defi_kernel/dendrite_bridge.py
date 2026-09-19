@@ -40,6 +40,26 @@ def protocol_epoch(profile, ms):
     return (ms - 1_647_899_091_000) // length + 328
 
 
+def clip_dano_validity(builder, profile, now, slot):
+    """Intersect contributor deadlines with the observed Dano protocol epoch."""
+    now_ms = int(now * 1000)
+    length = 432_000_000 if profile.name == "mainnet" else 1_800_000
+    start_ms = 1_647_899_091_000 + ((now_ms - 1_647_899_091_000) // length) * length
+    lower = max(slot(now_ms) - 120, slot(start_ms), builder.validity_start or 0)
+    upper = min(
+        slot(now_ms) + 240,
+        slot(start_ms + length) - 1,
+        builder.ttl or 2**63,
+    )
+    if not lower <= slot(now_ms) < upper:
+        raise KernelError(
+            "No usable Dano validity interval; refresh near epoch boundary"
+        )
+    builder.validity_start, builder.ttl = lower, upper
+
+
+# Replace the private globals/subclass bridge only after explicit dependencies qualify.
+# https://github.com/Charli3-Official/charli3-dendrite/issues/224
 class DanoSession:
     """One network, observation and clock per build, including all dependencies.
 
@@ -140,6 +160,8 @@ class DanoSession:
             decoded.unit_b,
         } or input_unit == output_unit:
             raise KernelError("Dano trade does not match the pool pair")
+        # Upstream must reject below-minimum inputs before mutating the builder.
+        # https://github.com/Charli3-Official/charli3-dendrite/issues/226
         minimum = (
             decoded._datum.min_x_change
             if input_unit == decoded.unit_a
@@ -217,24 +239,9 @@ class DanoSession:
             original.__defaults__,
             original.__closure__,
         )
-        # Keep the entire validity interval in one protocol epoch, including the
-        # preprod SDK's 30-minute epochs. Intersect other contributors' deadlines.
-        now_ms = int(self.now * 1000)
-        length = 432_000_000 if self.profile.name == "mainnet" else 1_800_000
-        start_ms = 1_647_899_091_000 + ((now_ms - 1_647_899_091_000) // length) * length
-        lower = max(
-            self.slot(now_ms) - 120, self.slot(start_ms), builder.validity_start or 0
-        )
-        upper = min(
-            self.slot(now_ms) + 240,
-            self.slot(start_ms + length) - 1,
-            builder.ttl or 2**63,
-        )
-        if not lower <= self.slot(now_ms) < upper:
-            raise KernelError(
-                "No usable Dano validity interval; refresh near epoch boundary"
-            )
-        builder.validity_start, builder.ttl = lower, upper
+        # Clip to one protocol epoch without extending other contributors' deadlines.
+        # https://github.com/Charli3-Official/charli3-dendrite/issues/227
+        clip_dano_validity(builder, self.profile, self.now, self.slot)
         output, _ = contribute(
             state,
             pool.output.address,
@@ -242,9 +249,8 @@ class DanoSession:
             Assets(root={output_unit: min_out}),
             tx_builder=builder,
         )
-        # The SDK's batch index is also the transaction output index because it
-        # emits pool outputs first. Preserve that layout when composing another
-        # protocol; appending here produces an invalid protocol withdrawal.
+        # Dano's batch index assumes leading pool outputs; replace with a qualified helper.
+        # https://github.com/Charli3-Official/charli3-dendrite/issues/12
         outputs = getattr(builder, "_kernel_dano_outputs", [])
         builder.outputs.insert(len(outputs), output)
         outputs.append(output)

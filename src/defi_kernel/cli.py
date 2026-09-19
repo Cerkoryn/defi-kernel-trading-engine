@@ -3,25 +3,15 @@
 import json
 from dataclasses import asdict
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import typer
-from pycardano import PlutusV2Script, PlutusV3Script, plutus_script_hash
 
+from .backends import create_provider
 from .config import load_profile
 from .domain import KernelError, json_value
 from .journal import Journal
-from .protocols import (
-    DANO_HASH,
-    DANO_PREPROD_HASH,
-    DEPLOYMENTS,
-    dano_config,
-    decode_dano,
-    decode_swaps,
-)
-from .providers import Koios
-from .runtime import Market, run_lock
-from .simulation import fixture_decision
+from .reporting import Reporter, configure_sdk_logging, error_details, status_text
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -57,10 +47,8 @@ def wallet_status(ctx: typer.Context, manifest: Annotated[Path, typer.Option()])
     provider = None
     try:
         wallet, _ = load_wallet(ctx.obj["profile"], manifest)
-        provider = Koios(ctx.obj["profile"])
-        observation = provider.scan(
-            "address_utxos", {"_addresses": [wallet["address"]], "_extended": True}
-        )
+        provider = create_provider(ctx.obj["profile"])
+        observation = provider.address_utxos(wallet["address"])
         totals = {}
         for row in observation.rows:
             for unit, quantity in row_assets(row, provider.profile.name).items():
@@ -112,6 +100,7 @@ def test_execute(
     import logging
 
     from .coordinator import Coordinator
+    from .runtime import run_lock
     from .test_execution import prepare_test_action
 
     logging.getLogger("PyCardano").setLevel(logging.ERROR)
@@ -124,7 +113,7 @@ def test_execute(
             )
         profile = ctx.obj["profile"]
         with run_lock(ctx.obj["state_dir"], profile):
-            provider = Koios(profile, enable_testnet_submission=submit)
+            provider = create_provider(profile, enable_testnet_submission=submit)
             journal = Journal(profile.state_path(ctx.obj["state_dir"]), profile)
             existing = journal.db.execute(
                 "SELECT 1 FROM outbox WHERE intent=?", (intent,)
@@ -163,6 +152,8 @@ def test_execute(
 @app.command("abandon-unsigned")
 def abandon_unsigned(ctx: typer.Context, intent: Annotated[str, typer.Option()]):
     """Release an unsigned, never-submitted candidate while retaining its history."""
+    from .runtime import run_lock
+
     profile = ctx.obj["profile"]
     journal = None
     try:
@@ -191,10 +182,11 @@ def reconcile(
     import time
 
     from .coordinator import Coordinator
+    from .runtime import run_lock
 
     provider, journal = None, None
     try:
-        provider = Koios(ctx.obj["profile"])
+        provider = create_provider(ctx.obj["profile"])
         journal = Journal(
             ctx.obj["profile"].state_path(ctx.obj["state_dir"]), ctx.obj["profile"]
         )
@@ -241,6 +233,139 @@ def render(value):
     typer.echo(json.dumps(value, indent=2, default=json_value))
 
 
+@app.command("provider-check")
+def provider_check(
+    ctx: typer.Context,
+    address: Annotated[
+        str | None, typer.Option(help="Public wallet address; no key files are opened")
+    ] = None,
+    transaction: Annotated[
+        list[str] | None,
+        typer.Option(help="Existing transaction hash to verify; repeatable"),
+    ] = None,
+    strategy: Annotated[
+        Path | None,
+        typer.Option(
+            help="Also qualify discovery for the configured venues; requires --address"
+        ),
+    ] = None,
+    compare_koios: Annotated[
+        bool,
+        typer.Option(
+            help="Compare selected immutable records with the configured Koios evaluator"
+        ),
+    ] = False,
+):
+    """Read-only adapter qualification: synchronization, parameters, history and discovery."""
+    import time
+
+    from pycardano import Address
+
+    from .backends import ProviderBundle
+    from .chain_context import ProviderChainContext, to_utxo
+
+    provider = None
+    started = time.monotonic()
+    try:
+        if strategy is not None and address is None:
+            raise KernelError("--strategy qualification requires a public --address")
+        provider = create_provider(ctx.obj["profile"])
+        context = ProviderChainContext(provider)
+        comparison = None
+        if compare_koios:
+            if not isinstance(provider, ProviderBundle):
+                raise KernelError(
+                    "--compare-koios requires explicit capability bindings"
+                )
+            comparison = provider.bindings["evaluation"]
+        report = {
+            "mode": "read-only; no signing, submission or journal writes",
+            "network": provider.profile.name,
+            "capabilities": provider.profile.capabilities or {"all": "koios"},
+            "tip": context._tip,
+            "tip_age_seconds": provider.clock() - context._tip["block_time"],
+            "protocol_major": context.protocol_param.protocol_major_version,
+            "cost_model_lengths": {
+                k: len(v) for k, v in context.protocol_param.cost_models.items()
+            },
+            "transactions": [],
+        }
+        for txid in transaction or []:
+            info = provider.transaction_info(txid)
+            if info is None:
+                raise KernelError(
+                    "Requested transaction history is unavailable; qualify full archive retention"
+                )
+            tx = provider.transaction_cbor(txid)
+            block = provider.block_at_height(info["block_height"])
+            if not block or block["hash"] != info["block_hash"]:
+                raise KernelError("Requested transaction is not verified canonical")
+            if comparison:
+                remote = comparison.transaction_cbor(txid)
+                if (
+                    remote.valid != tx.valid
+                    or remote.transaction_body.to_cbor()
+                    != tx.transaction_body.to_cbor()
+                ):
+                    raise KernelError("Dolos/Koios historical transaction disagreement")
+            report["transactions"].append(
+                {"txid": txid, "valid": tx.valid, "block_hash": block["hash"]}
+            )
+        if address:
+            address = str(Address.from_primitive(address))
+            observed = provider.address_utxos(address)
+            if not observed.complete:
+                raise KernelError("Incomplete wallet observation")
+            if comparison:
+                from .domain import OutRef
+
+                # Compare immutable contents of outputs positively present on both;
+                # a disappearing output is inconclusive, never evidence of a spend.
+                refs = [OutRef(r["tx_hash"], r["tx_index"]) for r in observed.rows]
+                remote = {
+                    OutRef(r["tx_hash"], r["tx_index"]): r
+                    for r in comparison.utxos(refs)
+                }
+                if set(remote) != set(refs):
+                    raise KernelError(
+                        "Comparison UTxO set changed or is incomplete; repeat qualification"
+                    )
+                for ref, row in zip(refs, observed.rows, strict=True):
+                    if (
+                        to_utxo(row, provider.profile).output.to_cbor()
+                        != to_utxo(remote[ref], provider.profile).output.to_cbor()
+                    ):
+                        raise KernelError("Dolos/Koios UTxO content disagreement")
+            report["wallet_utxos"] = len(observed.rows)
+        if strategy is not None:
+            from collections import Counter
+
+            from .arbitrage import ArbitrageConfig
+            from .arbitrage_runtime import Liquidity
+
+            selected = ArbitrageConfig.load(strategy, provider.profile)
+            edges, rows, _, _, rejected = Liquidity().observe(
+                provider, selected, Address.from_primitive(address), context
+            )
+            report["discovery"] = {
+                "enabled_venues": selected.venues,
+                "edges_by_venue": dict(Counter(e.venue for e in edges)),
+                "dependencies": len(rows),
+                "rejected": rejected,
+            }
+        report["elapsed_seconds"] = round(time.monotonic() - started, 3)
+        report["next_step"] = (
+            "Evaluated shadow; this read-only check does not qualify live submission"
+        )
+        render(report)
+    except (KernelError, OSError, ValueError, TypeError) as error:
+        typer.echo(error_details(error)["reason"], err=True)
+        raise typer.Exit(1)
+    finally:
+        if provider is not None:
+            provider.close()
+
+
 @app.callback()
 def context(
     ctx: typer.Context,
@@ -250,6 +375,7 @@ def context(
     config: Annotated[Path, typer.Option()] = Path("config.example.toml"),
     state_dir: Annotated[Path, typer.Option()] = Path("state"),
 ):
+    configure_sdk_logging()
     try:
         ctx.obj = {"profile": load_profile(config, network), "state_dir": state_dir}
     except (KernelError, OSError, TypeError, ValueError) as e:
@@ -260,7 +386,11 @@ def context(
 @app.command()
 def diagnostics(ctx: typer.Context):
     """Verify hosted chain identity and selected deployment scripts without trading."""
-    provider = Koios(ctx.obj["profile"])
+    from pycardano import PlutusV2Script, PlutusV3Script, plutus_script_hash
+
+    from .protocols import DEPLOYMENTS
+
+    provider = create_provider(ctx.obj["profile"])
     try:
         identity = provider.verify_identity()
         report = {
@@ -315,6 +445,8 @@ def simulate(
     ctx: typer.Context,
     fixture: Annotated[Path, typer.Option()] = Path("examples/preprod-market.json"),
 ):
+    from .simulation import fixture_decision
+
     """Run the reference strategy on recorded data with explicitly synthetic inventory."""
     try:
         result = fixture_decision(fixture, ctx.obj["profile"])
@@ -340,6 +472,10 @@ def status(
         bool,
         typer.Option(help="Include full lineage, reservations and latest diagnostics"),
     ] = False,
+    output: Annotated[Literal["text", "json"], typer.Option()] = "json",
+    run: Annotated[
+        str, typer.Option(help="Arbitrage history: latest, all, or a run ID")
+    ] = "latest",
 ):
     """Show last reconciled state, not a fresh chain query."""
     import time
@@ -348,7 +484,12 @@ def status(
         ctx.obj["profile"].state_path(ctx.obj["state_dir"]), ctx.obj["profile"]
     )
     try:
+        history = journal.arbitrage_history(run)
+        if output == "text":
+            typer.echo(status_text(history))
+            return
         report = journal.status()
+        report["arbitrage"] = history
         latest = report["latest_shadow"]
         report["observation_age_seconds"] = (
             max(0, time.time() - latest["observed_at"]) if latest else None
@@ -389,6 +530,9 @@ def status(
                 **report,
             }
         )
+    except (KernelError, OSError) as error:
+        typer.echo(error_details(error)["reason"], err=True)
+        raise typer.Exit(1)
     finally:
         journal.close()
 
@@ -396,7 +540,16 @@ def status(
 @app.command()
 def markets(ctx: typer.Context, venue: str = "swaps-v1"):
     """Discover and decode complete REST traversals, with rejected candidate counts."""
-    provider = Koios(ctx.obj["profile"])
+    from .protocols import (
+        DANO_HASH,
+        DANO_PREPROD_HASH,
+        DEPLOYMENTS,
+        dano_config,
+        decode_dano,
+        decode_swaps,
+    )
+
+    provider = create_provider(ctx.obj["profile"])
     try:
         if venue == "dano":
             provider.verify_identity()
@@ -499,6 +652,7 @@ def _trade_command(
     import logging
 
     from .engine import TradingEngine
+    from .runtime import Market, run_lock
     from .wallet import load_wallet
 
     logging.getLogger("PyCardano").setLevel(logging.ERROR)
@@ -514,7 +668,7 @@ def _trade_command(
             raise KernelError("Execution requires a wallet manifest")
         selected = Market.load(market, profile)
         with run_lock(ctx.obj["state_dir"], profile):
-            provider = Koios(profile, enable_testnet_submission=execute)
+            provider = create_provider(profile, enable_testnet_submission=execute)
             journal = Journal(profile.state_path(ctx.obj["state_dir"]), profile)
             engine = TradingEngine(
                 provider, journal, selected, wallet, key_dir, execute=execute
@@ -596,3 +750,123 @@ def route(
 ):
     """Discover one bounded Swaps/Dano route; reject unprofitable/incompatible legs."""
     _trade_command(ctx, manifest, market, execute, 30, 1, route=True)
+
+
+@app.command()
+def arbitrage(
+    ctx: typer.Context,
+    manifest: Annotated[Path, typer.Option()],
+    strategy: Annotated[Path, typer.Option()],
+    execute: Annotated[
+        bool, typer.Option(help="Sign and submit bounded atomic Preprod arbitrage")
+    ] = False,
+    interval: Annotated[float, typer.Option(min=1)] = 30,
+    iterations: Annotated[int | None, typer.Option(min=1)] = None,
+    output: Annotated[Literal["text", "json", "jsonl"], typer.Option()] = "text",
+    debug: Annotated[
+        bool, typer.Option(help="Include bounded decision and provider diagnostics")
+    ] = False,
+):
+    """Search ADA cycles; default shadow builds, inspects and evaluates without keys."""
+    import logging
+    import signal
+
+    from .arbitrage import ArbitrageConfig
+    from .arbitrage_runtime import ArbitrageEngine
+    from .runtime import run_lock
+    from .wallet import load_wallet
+
+    logging.getLogger("PyCardano").setLevel(logging.ERROR)
+    provider, journal, reporter = None, None, None
+    handlers = {}
+    try:
+        profile = ctx.obj["profile"]
+        selected = ArbitrageConfig.load(strategy, profile)
+        wallet, key_dir = load_wallet(profile, manifest)
+        with run_lock(ctx.obj["state_dir"], profile):
+            provider = create_provider(profile, enable_testnet_submission=execute)
+            journal = Journal(profile.state_path(ctx.obj["state_dir"]), profile)
+            reporter = Reporter(
+                journal, selected, output=output, debug=debug, write=typer.echo
+            )
+            provider.observer = reporter
+
+            def request_stop(signum, frame):
+                # A flag avoids interrupting journal commits or a submission response.
+                reporter.stop_requested = True
+
+            for signum in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+                handlers[signum] = signal.signal(signum, request_stop)
+            result = ArbitrageEngine(
+                provider,
+                journal,
+                selected,
+                wallet,
+                key_dir,
+                execute=execute,
+                reporter=reporter,
+            ).run(interval=interval, iterations=iterations)
+            if result["stage"] == "paused":
+                raise typer.Exit(2)
+    except KeyboardInterrupt:
+        typer.echo("Stopped. Reconcile any pending transaction before new execution.")
+    except typer.Exit:
+        raise
+    except Exception as error:
+        detail = error_details(error)
+        if reporter:
+            reporter.event(
+                "error",
+                detail,
+                namespace="SYSTEM",
+                level="ERROR",
+                message=detail["reason"],
+            )
+        else:
+            typer.echo(detail["reason"], err=True)
+        raise typer.Exit(1)
+    finally:
+        for signum, handler in handlers.items():
+            signal.signal(signum, handler)
+        if reporter and reporter.handler:
+            reporter.handler.close()
+        if provider is not None:
+            provider.close()
+        if journal is not None:
+            journal.close()
+
+
+@app.command("arbitrage-acknowledge")
+def arbitrage_acknowledge(
+    ctx: typer.Context,
+    manifest: Annotated[Path, typer.Option()],
+    txid: Annotated[
+        str, typer.Option(help="Full transaction ID of the investigated failure")
+    ],
+    reason: Annotated[
+        str, typer.Option(help="Investigation result and corrective action")
+    ],
+):
+    """Acknowledge an investigated script failure; never submit or reset losses."""
+    import time
+
+    from .runtime import bind_wallet, run_lock
+    from .wallet import load_wallet
+
+    journal = None
+    try:
+        profile = ctx.obj["profile"]
+        wallet, _ = load_wallet(profile, manifest)
+        with run_lock(ctx.obj["state_dir"], profile):
+            journal = Journal(profile.state_path(ctx.obj["state_dir"]), profile)
+            bind_wallet(profile, journal, None, wallet["address"])
+            journal.acknowledge_execution_incident(txid, reason, time.time())
+            render(
+                {"txid": txid, "status": "acknowledged", "submission_enabled": False}
+            )
+    except (KernelError, OSError, ValueError) as error:
+        typer.echo(str(error), err=True)
+        raise typer.Exit(1)
+    finally:
+        if journal is not None:
+            journal.close()

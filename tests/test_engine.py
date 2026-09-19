@@ -52,6 +52,16 @@ class Provider:
             if (r.get("reference_script") or {}).get("hash") == script_hash
         )
 
+    def address_utxos(self, address):
+        return self.scan(
+            "address_utxos", {"_addresses": [str(address)], "_extended": True}
+        )
+
+    def asset_utxos(self, policy, name):
+        return self.scan(
+            "asset_utxos", {"_asset_list": [[policy, name]], "_extended": True}
+        )
+
     def scan(self, endpoint, body):
         if endpoint == "asset_utxos":
             rows = [self.rows[0]]

@@ -6,17 +6,67 @@ from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
 
+import cbor2
 from pycardano import (
     Address,
+    NativeScript,
     PaymentSigningKey,
+    RawPlutusData,
+    RedeemerMap,
     StakeSigningKey,
     Transaction,
     VerificationKeyHash,
     VerificationKeyWitness,
 )
+from pycardano.exception import PyCardanoException
 
-from .domain import KernelError, Unsupported
+from .domain import KernelError, RequestTooLarge, Unsupported
 from .wallet import load_private_key
+
+
+def decode_transaction(encoded):
+    """Turn malformed transaction evidence into a controlled, fail-closed error."""
+    if not isinstance(encoded, (str, bytes)):
+        raise KernelError("Invalid transaction CBOR: expected bytes or hex text")
+    try:
+        return Transaction.from_cbor(encoded)
+    except (
+        cbor2.CBORDecodeError,
+        PyCardanoException,
+        ValueError,
+        TypeError,
+        KeyError,
+        IndexError,
+    ) as error:
+        # SDK exception strings may include entire payloads. Keep only the type.
+        raise KernelError(
+            f"Invalid transaction CBOR ({type(error).__name__})"
+        ) from None
+
+
+def decode_candidate(encoded):
+    """Decode an owned candidate without changing any evaluated/signed bytes."""
+    frozen = decode_transaction(encoded)
+    if frozen.to_cbor() != encoded:
+        # RawPlutusData loses ByteString's >64-byte chunks (Dano multi-pool data).
+        # Restore via the SDK, then demand exact parity; never normalize wire bytes.
+        # Removal criteria: docs/upstream-contributions.md#long-redeemer-bytes
+        redeemers = frozen.transaction_witness_set.redeemer
+        for value in (
+            redeemers.values()
+            if isinstance(redeemers, RedeemerMap)
+            else redeemers or []
+        ):
+            data = value.data
+            if not isinstance(data, RawPlutusData):
+                data = RawPlutusData(data)
+            # Keep primitives: RawPlutusData's copy hook re-decodes the payload.
+            value.data = RawPlutusData.from_dict(data.to_dict()).data
+    # Keep this even after the upstream startup self-test:
+    # https://github.com/Python-Cardano/pycardano/pull/496
+    if frozen.to_cbor() != encoded:
+        raise KernelError("CBOR round trip changed the candidate; signing is blocked")
+    return frozen
 
 
 def ref_text(tx_input):
@@ -31,6 +81,85 @@ def value_units(value):
             for p, names in value.multi_asset.items()
             for n, q in names.items()
         },
+    }
+
+
+def transaction_resources(transaction, context, resolved):
+    """Count final witness bytes before opening keys; signed calls use exact bytes."""
+    import json
+    from copy import deepcopy
+
+    from pycardano import VerificationKey
+
+    tx = deepcopy(transaction)
+    body, witness, params = (
+        tx.transaction_body,
+        tx.transaction_witness_set,
+        context.protocol_param,
+    )
+    if not witness.vkey_witnesses:
+        needed = set(map(str, body.required_signers or []))
+        for tx_input in [*body.inputs, *(body.collateral or [])]:
+            credential = resolved[ref_text(tx_input)].output.address.payment_part
+            if isinstance(credential, VerificationKeyHash):
+                needed.add(str(credential))
+        witness.vkey_witnesses = [
+            VerificationKeyWitness(VerificationKey(i.to_bytes(32, "big")), bytes(64))
+            for i, _ in enumerate(sorted(needed), 1)
+        ] or None
+    encoded = tx.to_cbor()
+    if len(encoded) > params.max_tx_size:
+        raise KernelError("Signed transaction exceeds maximum transaction size")
+    if len(body.collateral or []) > params.max_collateral_inputs:
+        raise KernelError("Too many collateral inputs")
+    for output in [
+        *body.outputs,
+        *([body.collateral_return] if body.collateral_return else []),
+    ]:
+        if len(output.amount.to_cbor()) > params.max_val_size:
+            raise KernelError("Output value exceeds maximum value size")
+    references = [
+        resolved[ref_text(i)].output.script
+        for i in set(body.inputs) | set(body.reference_inputs or [])
+    ]
+    reference_bytes = sum(
+        len(script.to_cbor()) if isinstance(script, NativeScript) else len(script)
+        for script in references
+        if script is not None
+    )
+    if reference_bytes > params.maximum_reference_scripts_size["bytes"]:
+        raise KernelError("Reference scripts exceed transaction limit")
+    redeemers = witness.redeemer or {}
+    units = (
+        [value.ex_units for value in redeemers.values()]
+        if hasattr(redeemers, "values")
+        else []
+    )
+    memory, steps = sum(u.mem for u in units), sum(u.steps for u in units)
+    if memory > params.max_tx_ex_mem or steps > params.max_tx_ex_steps:
+        raise KernelError("Assigned execution budgets exceed transaction limits")
+    payload_bytes = max(
+        len(
+            json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "id": "kernel",
+                    "method": method,
+                    "params": {"transaction": {"cbor": encoded.hex()}},
+                },
+                separators=(",", ":"),
+            ).encode()
+        )
+        for method in ("evaluateTransaction", "submitTransaction")
+    )
+    if payload_bytes > context.profile.max_request_bytes:
+        raise RequestTooLarge(payload_bytes, context.profile.max_request_bytes)
+    return {
+        "signed_bytes": len(encoded),
+        "reference_script_bytes": reference_bytes,
+        "memory": memory,
+        "steps": steps,
+        "provider_request_bytes": payload_bytes,
     }
 
 
@@ -89,13 +218,15 @@ def inspect_transaction(transaction, authorization, context, resolved):
     if (
         b.validity_start is None
         or b.ttl is None
-        or not a.validity_start
-        <= b.validity_start
-        <= context.last_block_slot
-        < b.ttl
-        <= a.ttl
+        or not a.validity_start <= b.validity_start < b.ttl <= a.ttl
     ):
-        raise KernelError("Transaction validity interval is unauthorized or expired")
+        raise KernelError("Transaction validity interval is unauthorized")
+    if context.last_block_slot >= b.ttl:
+        raise KernelError(
+            "Candidate validity interval expired; a fresh route is required"
+        )
+    if context.last_block_slot < b.validity_start:
+        raise KernelError("Candidate validity interval has not started yet")
 
     def check_refs(items, expected, label):
         actual = [ref_text(i) for i in items or []]
@@ -249,11 +380,7 @@ class LocalSigner:
         # Freeze before inspection: later changes to a builder cannot change what
         # is authorized or signed. Credentials are only opened after inspection.
         encoded = transaction.to_cbor()
-        frozen = Transaction.from_cbor(encoded)
-        if frozen.to_cbor() != encoded:
-            raise KernelError(
-                "CBOR round trip changed the candidate; use the pinned pure Python cbor2 build"
-            )
+        frozen = decode_candidate(encoded)
         if (
             evaluation.chain_id != context.profile.chain_id
             or evaluation.transaction_digest != sha256(encoded).hexdigest()
@@ -277,6 +404,9 @@ class LocalSigner:
         witness = frozen.transaction_witness_set
         if witness.vkey_witnesses or witness.bootstrap_witness:
             raise KernelError("Expected an unsigned candidate")
+        transaction_resources(frozen, context, resolved)
+        # Keep key objects out of diagnostics; the SDK's repr/str exposes private bytes.
+        # https://github.com/Python-Cardano/pycardano/pull/494
         keys = [load_private_key(self.payment_key, PaymentSigningKey)]
         if self.stake_key is not None:
             keys.append(load_private_key(self.stake_key, StakeSigningKey))
@@ -297,4 +427,5 @@ class LocalSigner:
             )
             for h in sorted(needed)
         ]
+        transaction_resources(frozen, context, resolved)
         return frozen

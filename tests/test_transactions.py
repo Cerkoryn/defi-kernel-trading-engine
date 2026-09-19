@@ -47,8 +47,12 @@ def as_row(output):
         "address": str(output.address),
         "value": str(assets["lovelace"]),
         "is_spent": False,
-        "datum_hash": str(datum_hash(output.datum)),
-        "inline_datum": {"bytes": output.datum.to_cbor_hex()},
+        "datum_hash": str(datum_hash(output.datum))
+        if output.datum is not None
+        else None,
+        "inline_datum": {"bytes": output.datum.to_cbor_hex()}
+        if output.datum is not None
+        else None,
         "asset_list": [
             {"policy_id": u[:56], "asset_name": u[56:], "quantity": str(q)}
             for u, q in assets.items()

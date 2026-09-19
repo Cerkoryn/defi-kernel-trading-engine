@@ -1,0 +1,10 @@
+{
+  "purpose": "Read-only JSON-RPC transport capacity check; no transaction signed, evaluated or submitted",
+  "provider": "https://preprod.koios.rest/api/v1",
+  "observed_at": 1788903212.577562,
+  "request_bytes": 40094,
+  "configured_limit": 65536,
+  "method": "queryLedgerState/protocolParameters",
+  "response_valid": true,
+  "ledger_max_transaction_bytes": 16384
+}

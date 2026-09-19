@@ -1,0 +1,26 @@
+{
+  "chain_id": "1:1654041600:testnet",
+  "network": "preprod",
+  "assets": [
+    "lovelace",
+    "007c4fc75b7662fc735177aa714da9d1b06af5644df199fef39e5fc166425443",
+    "834a15101873b4e1ddfaa830df46792913995d8738dcde34eda27905665553444d",
+    "9a614be30284aa88eb845da7657b5d0a235f1b95628b23c08050d5026655534441",
+    "bd976e131cfc3956b806967b06530e48c20ed5498b46a5eb836b61c2744d494c4b7632",
+    "c0f8644a01a6bf5db02f4afe30d604975e63dd274f1098a1738e561d4f74686572546f6b656e0a",
+    "d4fece6b39f7cd78a3f036b2ae6508c13524b863922da80f68dd9ab75553444d",
+    "e16c2dc8ae937e8d3790c7fd7168d7b994621ba14ca11415f39fed724d494e"
+  ],
+  "max_hops": 8,
+  "max_cycles": 1024,
+  "max_search_seconds": 10,
+  "max_drawdown_lovelace": 50000000,
+  "venues": [
+    "swaps-v1",
+    "dano",
+    "swaps-v1-two-way",
+    "splash",
+    "genius-yield",
+    "saturnswap"
+  ]
+}

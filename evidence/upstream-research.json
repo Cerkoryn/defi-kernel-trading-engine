@@ -1,0 +1,421 @@
+{
+  "observed_at": "2026-09-07T15:11:46.405096+00:00",
+  "scope": "Read-only upstream research and offline diagnostic probes; no runtime upgrade, signing, submission, or upstream publication.",
+  "repositories": {
+    "dendrite": {
+      "repository": "https://github.com/Charli3-Official/charli3-dendrite",
+      "default_branch_commit": "0a1e02505af9d92506e8adbaf42307d923b1f061",
+      "source": "https://github.com/Charli3-Official/charli3-dendrite/tree/0a1e02505af9d92506e8adbaf42307d923b1f061"
+    },
+    "pycardano": {
+      "repository": "https://github.com/Python-Cardano/pycardano",
+      "default_branch_commit": "3bc5677d4db6c5e49de11bffd302a7ffe4e6bcff",
+      "source": "https://github.com/Python-Cardano/pycardano/tree/3bc5677d4db6c5e49de11bffd302a7ffe4e6bcff"
+    }
+  },
+  "probe_results": {
+    "pinned": {
+      "Legacy": {
+        "roundtrip": true
+      },
+      "Modern": {
+        "error": "DeserializeException",
+        "message": "Cannot deserialize object: \nCBORTag(121, <FrozenList(frozen=True, [42])>)\n to type __main__.A | __main__.B."
+      },
+      "reference_order": [
+        {
+          "seed": "1",
+          "order": [
+            4,
+            3,
+            6,
+            2,
+            0,
+            1,
+            5
+          ],
+          "txid": "9f3c385abc3f50e97946a6c749521def5f9e2c1d004c684fc4a82d52e6d03e87"
+        },
+        {
+          "seed": "2",
+          "order": [
+            1,
+            0,
+            4,
+            2,
+            5,
+            3,
+            6
+          ],
+          "txid": "c53c5c45cf733bf8f52dca86800d0d652e1c108f875d20b9009188cdab2edee8"
+        },
+        {
+          "seed": "3",
+          "order": [
+            6,
+            1,
+            0,
+            5,
+            4,
+            2,
+            3
+          ],
+          "txid": "9f493ef0f7a7a50d8cb53ec54edfa3e8cc281573b3157bbc796d9f228a338e6b"
+        },
+        {
+          "seed": "4",
+          "order": [
+            5,
+            0,
+            6,
+            2,
+            3,
+            4,
+            1
+          ],
+          "txid": "4a68bd9f0b87314cbfdb06696fe56f9f2e543c529e15b098726e2497c6f950fa"
+        },
+        {
+          "seed": "5",
+          "order": [
+            2,
+            3,
+            5,
+            0,
+            1,
+            4,
+            6
+          ],
+          "txid": "7154d3bb28125810808d934c628962da5aa10546aff26ffa47bdcda642615c22"
+        }
+      ],
+      "unique_body_hashes": 5,
+      "historical_roundtrip": [
+        {
+          "txid": "9b72c2e64da4a9e03fd7aaba630ce6c9103d417f388f0b886470db8391562e15",
+          "matches": true
+        },
+        {
+          "txid": "71f04bad0414a906a6f7a4ba8719893302ffcd71858aede969a2d47d4ed8c444",
+          "matches": true
+        },
+        {
+          "txid": "c7cbcba2cefaafb2a6c0825c864c56c299482737a3b62b370df00affeb5aab3d",
+          "matches": true
+        },
+        {
+          "txid": "ba311211d93a87fded84f467ad5fd7b0bd99dfa1ad0f96422dc0e73ccd7e33dc",
+          "matches": true
+        },
+        {
+          "txid": "6f9736aa94d4fe9e70ff38cf145aa5ae48cdc27010c8ca2be31710a5a1ef0214",
+          "matches": true
+        },
+        {
+          "txid": "83904b060c3158e140eee4b2e43117002d76418c3133a54ea0f47ef964568e45",
+          "matches": true
+        },
+        {
+          "txid": "c8fb996bcde3df0b954a75ece13ba7820181b89936445d6fe4ab92bc5d312b70",
+          "matches": true
+        },
+        {
+          "txid": "9ec00b87db82d0bd85f720fb6e682a2f852b3baa4a6821170167862fb485cdc8",
+          "matches": true
+        },
+        {
+          "txid": "424ad68d5c5be72f445eef5b89d5b1edd84ac380fdcbd1e27967952c721f70fd",
+          "matches": true
+        },
+        {
+          "txid": "b7e0f9b924f1e2788c9c7955dcc19a8b1eccff47e7695bb9ea63b01c13deede5",
+          "matches": true
+        },
+        {
+          "txid": "2d4d2110b4e62aea8664c0645abe5d07aae75ec5017fbf50a2c135d6d6737db8",
+          "matches": true
+        },
+        {
+          "txid": "0cf073048f55b8e0a78dea3bcf5494ba3ab4b10722fad2a2f74bb6f40a26065e",
+          "matches": true
+        }
+      ],
+      "dano_callback": {
+        "ledger_redeemer_index": 1,
+        "dano_index_before_callback": 0,
+        "dano_index_after_callback": 1
+      }
+    },
+    "current": {
+      "Legacy": {
+        "roundtrip": true
+      },
+      "Modern": {
+        "error": "DeserializeException",
+        "message": "Cannot deserialize object: \nCBORTag(121, <FrozenList(frozen=True, [42])>)\n to type __main__.A | __main__.B."
+      },
+      "reference_order": [
+        {
+          "seed": "1",
+          "order": [
+            4,
+            3,
+            6,
+            2,
+            0,
+            1,
+            5
+          ],
+          "txid": "9f3c385abc3f50e97946a6c749521def5f9e2c1d004c684fc4a82d52e6d03e87"
+        },
+        {
+          "seed": "2",
+          "order": [
+            1,
+            0,
+            4,
+            2,
+            5,
+            3,
+            6
+          ],
+          "txid": "c53c5c45cf733bf8f52dca86800d0d652e1c108f875d20b9009188cdab2edee8"
+        },
+        {
+          "seed": "3",
+          "order": [
+            6,
+            1,
+            0,
+            5,
+            4,
+            2,
+            3
+          ],
+          "txid": "9f493ef0f7a7a50d8cb53ec54edfa3e8cc281573b3157bbc796d9f228a338e6b"
+        },
+        {
+          "seed": "4",
+          "order": [
+            5,
+            0,
+            6,
+            2,
+            3,
+            4,
+            1
+          ],
+          "txid": "4a68bd9f0b87314cbfdb06696fe56f9f2e543c529e15b098726e2497c6f950fa"
+        },
+        {
+          "seed": "5",
+          "order": [
+            2,
+            3,
+            5,
+            0,
+            1,
+            4,
+            6
+          ],
+          "txid": "7154d3bb28125810808d934c628962da5aa10546aff26ffa47bdcda642615c22"
+        }
+      ],
+      "unique_body_hashes": 5,
+      "historical_roundtrip": [
+        {
+          "txid": "9b72c2e64da4a9e03fd7aaba630ce6c9103d417f388f0b886470db8391562e15",
+          "matches": true
+        },
+        {
+          "txid": "71f04bad0414a906a6f7a4ba8719893302ffcd71858aede969a2d47d4ed8c444",
+          "matches": true
+        },
+        {
+          "txid": "c7cbcba2cefaafb2a6c0825c864c56c299482737a3b62b370df00affeb5aab3d",
+          "matches": true
+        },
+        {
+          "txid": "ba311211d93a87fded84f467ad5fd7b0bd99dfa1ad0f96422dc0e73ccd7e33dc",
+          "matches": true
+        },
+        {
+          "txid": "6f9736aa94d4fe9e70ff38cf145aa5ae48cdc27010c8ca2be31710a5a1ef0214",
+          "matches": true
+        },
+        {
+          "txid": "83904b060c3158e140eee4b2e43117002d76418c3133a54ea0f47ef964568e45",
+          "matches": true
+        },
+        {
+          "txid": "c8fb996bcde3df0b954a75ece13ba7820181b89936445d6fe4ab92bc5d312b70",
+          "matches": true
+        },
+        {
+          "txid": "9ec00b87db82d0bd85f720fb6e682a2f852b3baa4a6821170167862fb485cdc8",
+          "matches": true
+        },
+        {
+          "txid": "424ad68d5c5be72f445eef5b89d5b1edd84ac380fdcbd1e27967952c721f70fd",
+          "matches": true
+        },
+        {
+          "txid": "b7e0f9b924f1e2788c9c7955dcc19a8b1eccff47e7695bb9ea63b01c13deede5",
+          "matches": true
+        },
+        {
+          "txid": "2d4d2110b4e62aea8664c0645abe5d07aae75ec5017fbf50a2c135d6d6737db8",
+          "matches": true
+        },
+        {
+          "txid": "0cf073048f55b8e0a78dea3bcf5494ba3ab4b10722fad2a2f74bb6f40a26065e",
+          "matches": true
+        }
+      ],
+      "dano_callback": {
+        "ledger_redeemer_index": 1,
+        "dano_index_before_callback": 0,
+        "dano_index_after_callback": 1
+      }
+    },
+    "dendrite_script_reference": {
+      "input_token_quantity": 7,
+      "converted_native_asset_count": 0,
+      "converted_script_class": "PlutusV2Script"
+    },
+    "current_cost_models": {
+      "plutus:v1": {
+        "provided": 332,
+        "parsed": 166,
+        "prefix_order_preserved": true
+      },
+      "plutus:v2": {
+        "provided": 332,
+        "parsed": 175,
+        "prefix_order_preserved": true
+      },
+      "plutus:v3": {
+        "provided": 350,
+        "parsed": 350,
+        "prefix_order_preserved": true
+      }
+    }
+  },
+  "reviewed_pull_requests": [
+    {
+      "html_url": "https://github.com/Charli3-Official/charli3-dendrite/pull/170",
+      "number": 170,
+      "title": "fix(dano): swap_utxo tx-building correctness + feat(saturnswap): authorized fee-free fill",
+      "state": "closed",
+      "merged_at": "2026-06-13T02:13:40Z",
+      "updated_at": "2026-06-13T02:13:40Z"
+    },
+    {
+      "html_url": "https://github.com/Charli3-Official/charli3-dendrite/pull/180",
+      "number": 180,
+      "title": "feat(cardano-swaps): v2 one-way order book \u2014 parse + create/fill/close builders",
+      "state": "closed",
+      "merged_at": "2026-06-17T19:58:54Z",
+      "updated_at": "2026-06-17T19:58:54Z"
+    },
+    {
+      "html_url": "https://github.com/Charli3-Official/charli3-dendrite/pull/216",
+      "number": 216,
+      "title": "feat(dano): compose N pool spends per tx + preserve raw pool UTxO value",
+      "state": "closed",
+      "merged_at": "2026-07-24T02:44:13Z",
+      "updated_at": "2026-07-24T02:44:13Z"
+    },
+    {
+      "html_url": "https://github.com/Charli3-Official/charli3-dendrite/pull/221",
+      "number": 221,
+      "title": "fix(blockfrost): select ApiUrls from project id network",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-09-07T01:59:58Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/475",
+      "number": 475,
+      "title": "Use cbor2pure by default",
+      "state": "closed",
+      "merged_at": "2025-12-18T13:18:53Z",
+      "updated_at": "2025-12-18T17:18:54Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/492",
+      "number": 492,
+      "title": "Speed up PlutusData/CBORSerializable decode ~5.4x and encode ~4.3x (no behavior change)",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-06-22T16:30:25Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/494",
+      "number": 494,
+      "title": "security: redact private key material from SigningKey repr/str",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-06-15T05:10:17Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/495",
+      "number": 495,
+      "title": "security: create key files with 0o600 permissions atomically",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-06-25T08:09:58Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/496",
+      "number": 496,
+      "title": "security: warn and self-test when CBOR_C_EXTENSION=1",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-06-14T20:32:01Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/497",
+      "number": 497,
+      "title": "Fix OgmiosV6 backend truncating/reordering Plutus cost models (wrong script integrity hash)",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-06-22T15:58:45Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/499",
+      "number": 499,
+      "title": "Cap cbor2 below 6.0.0 (fixes issue 498)",
+      "state": "closed",
+      "merged_at": null,
+      "updated_at": "2026-08-31T11:47:58Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/500",
+      "number": 500,
+      "title": "Restrict cbor2",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-08-31T11:46:12Z"
+    },
+    {
+      "html_url": "https://github.com/Python-Cardano/pycardano/pull/503",
+      "number": 503,
+      "title": "Support cbor2 6",
+      "state": "open",
+      "merged_at": null,
+      "updated_at": "2026-08-31T12:13:55Z"
+    }
+  ],
+  "pycardano_latest_release": {
+    "tag_name": "v0.19.2",
+    "published_at": "2026-03-01T19:51:36Z",
+    "html_url": "https://github.com/Python-Cardano/pycardano/releases/tag/v0.19.2"
+  },
+  "limitations": [
+    "Probes use Python 3.12.14; current source ran with isolated cbor2pure 5.8.0 and crc8 0.2.1 plus existing environment dependencies.",
+    "Reference-order and Dano callback probes inspect construction internals with synthetic inputs; they do not establish ledger validity or an exploit.",
+    "No full current-upstream test suite, upgrade compatibility matrix, or live ledger evaluation was run.",
+    "Issue searches covered all open items and recent issue activity plus selected pull-request details; not an exhaustive historical search."
+  ]
+}

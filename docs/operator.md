@@ -2,6 +2,8 @@
 
 The selected execution path is preprod ADA/fUSDA, published Cardano-Swaps v1 one-way orders and Dano. `trade` uses the complete scheduler and defaults to live-data shadow mode. Execution requires `--execute`; mainnet, preview and custom profiles remain read-only for this strategy.
 
+For the arbitrage strategy, use [the extended-run guide](arbitrage.md#running-an-extended-preprod-experiment). It covers readable terminal events, bounded diagnostic logs, debug/JSONL output, per-run profit accounting, and the expanded Preprod allowlist. `status --output text --run all` shows arbitrage history; the existing `status` JSON view remains available.
+
 ## Configure and inspect
 
 Install Python 3.12 and run `uv sync --locked --cache-dir .uv-cache` from the repository. Use its pinned pure Python `cbor2` build; installing a generic binary wheel can change Cardano transaction hashes. Copy `examples/preprod-test.toml` and `examples/preprod-mvp.json` for a new configuration. Give each wallet a distinct `wallet_id`. Credential settings contain environment-variable names, never credentials themselves.
@@ -80,4 +82,8 @@ Order UTxO comparison checks values and datum terms as well as references. A dis
 
 Pass a strategy object to `TradingEngine(..., strategy=my_strategy)`. Implement `decide(sell_quote, buy_quote, inventory, now) -> Decision` and `should_reprice(old_price, new_price, created_at, now) -> bool`, following `MarketMaker` in `src/defi_kernel/strategy.py`. The runtime supplies observations, manages order lifecycle and applies the same execution limits, final evaluation and independent signing policy. Strategy callbacks receive no provider or signer. Run custom code as trusted local Python; it is not a security sandbox. Protocol and provider interfaces are separate from these callbacks.
 
-Second-provider live verification awaits credentials. Published Swaps v2, two-way orders, script-based stake authorization and batcher venues are unsupported. The next increment is a batcher order lifecycle, including open/submitted/filled/cancelled distinctions.
+Second-provider live verification awaits credentials. Published Swaps v2, two-way orders, script-based stake authorization and batcher venues are unsupported. See [atomic arbitrage](arbitrage.md) for multi-hop search, configuration, evaluated shadow mode and funded qualification.
+
+## Multi-hop arbitrage
+
+Use `arbitrage --manifest WALLET --strategy examples/preprod-arbitrage.json` for a continuous evaluated shadow run; add `--iterations 1` for one poll or `--execute` for bounded Preprod submission. The [arbitrage guide](arbitrage.md) lists allowlist/search limits, exact balance requirements, cost accounting, evidence and recovery semantics. This command shares wallet locking, polling, the signer and durable recovery with the market maker.

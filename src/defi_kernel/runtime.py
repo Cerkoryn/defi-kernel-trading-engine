@@ -115,7 +115,7 @@ def bind_wallet(profile, journal, market, wallet_address):
         raise KernelError(
             "Owner strategy requires a stake key credential; registration/delegation is not required"
         )
-    if market.base.network != profile.name:
+    if market is not None and market.base.network != profile.name:
         raise KernelError("Market asset network mismatch")
     journal.bind_watch_wallet(str(wallet))
     return wallet, Address(
@@ -123,3 +123,77 @@ def bind_wallet(profile, journal, market, wallet_address):
         wallet.staking_part,
         category,
     )
+
+
+def poll(engine, *, tick, interval, iterations, emit, finished=lambda result: False):
+    """Shared stop-aware polling and journal diagnostics for both strategies."""
+    from charli3_dendrite.dexs.core.errors import InvalidPoolError
+    from pycardano.exception import PyCardanoException
+
+    from .domain import json_value
+
+    if not interval >= 1 or iterations is not None and iterations < 1:
+        raise KernelError("Invalid polling bounds")
+    engine.journal.start_run(engine.clock())
+    engine.journal.heartbeat(
+        engine.clock(), "executing" if engine.execute else "shadow"
+    )
+    reporter = getattr(engine, "reporter", None)
+    stopping = getattr(engine, "stop_requested", engine.journal.stop_requested)
+    if reporter:
+        reporter.start("preprod execution" if engine.execute else "evaluated shadow")
+    count, result = 0, {"action": "stopped", "stage": "stopped"}
+    end_state = "error"
+    try:
+        while not stopping():
+            if reporter:
+                reporter.cycle_id += 1
+            try:
+                result = tick()
+            except (KernelError, InvalidPoolError, PyCardanoException) as error:
+                from .providers import RateLimited
+                from .reporting import error_details
+
+                result = {
+                    **getattr(engine, "current_report", {}),
+                    "mode": "preprod execution"
+                    if engine.execute
+                    else "live-data shadow",
+                    "observed_at": engine.clock(),
+                    "action": "paused",
+                    "stage": "paused",
+                    **error_details(error),
+                }
+                if isinstance(error, RateLimited):
+                    result["retry_after_seconds"] = error.retry_after_seconds
+                if stopping():
+                    result.update(action="stopped", stage="stopped")
+            if reporter:
+                reporter.cycle(result)
+            engine.journal.record_shadow(
+                engine.clock(), json.dumps(result, default=json_value)
+            )
+            engine.journal.heartbeat(
+                engine.clock(),
+                "paused"
+                if result.get("stage") == "paused"
+                else "executing"
+                if engine.execute
+                else "shadow",
+            )
+            emit(result)
+            count += 1
+            if iterations is not None and count >= iterations or finished(result):
+                break
+            remaining = max(interval, result.get("retry_after_seconds", 0))
+            while remaining > 0 and not stopping():
+                if reporter:
+                    reporter.health()
+                engine.sleep(min(1, remaining))
+                remaining -= 1
+        end_state = "stopped"
+    finally:
+        engine.journal.heartbeat(engine.clock(), "stopped")
+        if reporter:
+            reporter.finish(end_state)
+    return result

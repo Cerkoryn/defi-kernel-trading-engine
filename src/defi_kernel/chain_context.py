@@ -1,4 +1,4 @@
-"""Transaction-scoped PyCardano bridge using the shared Koios capabilities."""
+"""Transaction-scoped PyCardano bridge using explicit provider capabilities."""
 
 from fractions import Fraction
 
@@ -31,6 +31,8 @@ def protocol_parameters(p):
     Zero-padded ordinal keys preserve ledger array order even for V1's sorted
     language view. Do not zip against PyCardano's older fixed parameter names.
     """
+    # Reuse an upstream parser only after full-array/hash parity; the Koios bridge stays.
+    # https://github.com/Python-Cardano/pycardano/pull/497
     models = {}
     for language, values in p["plutusCostModels"].items():
         if language not in ("plutus:v1", "plutus:v2", "plutus:v3"):
@@ -75,6 +77,8 @@ def protocol_parameters(p):
 
 
 def to_utxo(row, profile):
+    # Dendrite drops assets/datums and assumes V2; replace conversion, retain validation.
+    # https://github.com/Charli3-Official/charli3-dendrite/issues/222
     if row.get("is_spent") is not False:
         raise KernelError("Cannot construct an input from unverified/spent state")
     address = Address.from_primitive(row["address"])
@@ -117,20 +121,17 @@ def to_utxo(row, profile):
     )
 
 
-class KoiosChainContext(ChainContext):
+class ProviderChainContext(ChainContext):
     """Create a fresh context per plan; cached parameters never cross builds."""
 
     def __init__(self, provider):
         self.provider = provider
         self.profile = provider.profile
+        self._resolved = {}
         self._genesis = provider.verify_identity()
         self._tip = provider.tip()
-        self.slot_clock = SlotClock(
-            self.profile, provider.rpc("queryLedgerState/eraSummaries")
-        )
-        self._parameters = protocol_parameters(
-            provider.rpc("queryLedgerState/protocolParameters")
-        )
+        self.slot_clock = SlotClock(self.profile, provider.era_summaries())
+        self._parameters = protocol_parameters(provider.protocol_parameters())
 
     @property
     def protocol_param(self):
@@ -169,17 +170,21 @@ class KoiosChainContext(ChainContext):
         )
 
     def _utxos(self, address):
-        observation = self.provider.scan(
-            "address_utxos", {"_addresses": [address], "_extended": True}
-        )
+        observation = self.provider.address_utxos(address)
         return [to_utxo(r, self.provider.profile) for r in observation.rows]
 
     def slot_at_ms(self, timestamp):
         return self.slot_clock.slot_at_ms(timestamp)
 
     def utxo_by_tx_id(self, tx_hash, index):
-        rows = self.provider.utxos([OutRef(tx_hash, index)])
-        return to_utxo(rows[0], self.provider.profile) if rows else None
+        from copy import deepcopy
+
+        ref = OutRef(tx_hash, index)
+        # Build-local cache only. Coordinator/signer dependency rechecks bypass it.
+        if ref not in self._resolved:
+            rows = self.provider.utxos([ref])
+            self._resolved[ref] = to_utxo(rows[0], self.profile) if rows else None
+        return deepcopy(self._resolved[ref])
 
     def evaluate_tx_cbor(self, cbor):
         rows = self.provider.evaluate(cbor.hex() if isinstance(cbor, bytes) else cbor)
@@ -202,3 +207,7 @@ class KoiosChainContext(ChainContext):
 
     def submit_tx_cbor(self, cbor):
         return self.provider.submit(cbor.hex() if isinstance(cbor, bytes) else cbor)
+
+
+# Compatibility for existing external operator scripts.
+KoiosChainContext = ProviderChainContext

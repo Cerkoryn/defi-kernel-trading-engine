@@ -1,0 +1,513 @@
+{
+  "mode": "offline synthetic mixed-venue graph; not a live throughput guarantee",
+  "edge_count": 112,
+  "samples": [
+    {
+      "max_cycles": 256,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "rotation": 0,
+      "elapsed_seconds": 0.08453405502950773,
+      "expansions": 2243,
+      "cycles": 256,
+      "size_attempts": 4400,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 1753,
+      "search_truncated": true,
+      "cycles_sized": 256,
+      "pre_fee_candidates": 581,
+      "distinct_candidate_cycles": 53,
+      "candidate_cycles_by_hops": {
+        "7": 9,
+        "8": 3,
+        "5": 16,
+        "2": 9,
+        "3": 6,
+        "4": 4,
+        "6": 6
+      },
+      "shortlist": [
+        {
+          "route_id": "98e238d3c6dab48f0d227180",
+          "hops": 7,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 945000,
+          "estimated_net_lovelace": 36747461
+        },
+        {
+          "route_id": "1721829146ad81c5143eef95",
+          "hops": 8,
+          "gain_before_network_fee_lovelace": 37734335,
+          "estimated_network_fee_lovelace": 1013000,
+          "estimated_net_lovelace": 36721335
+        },
+        {
+          "route_id": "b230b2ac7ccda1a54558adce",
+          "hops": 5,
+          "gain_before_network_fee_lovelace": 31511904,
+          "estimated_network_fee_lovelace": 856000,
+          "estimated_net_lovelace": 30655904
+        }
+      ],
+      "best_gross_gain_lovelace": 37734335
+    },
+    {
+      "max_cycles": 256,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        5,
+        7,
+        8
+      ],
+      "rotation": 1,
+      "elapsed_seconds": 0.07285517296986654,
+      "expansions": 2174,
+      "cycles": 247,
+      "size_attempts": 4244,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 2137,
+      "search_truncated": true,
+      "cycles_sized": 247,
+      "pre_fee_candidates": 214,
+      "distinct_candidate_cycles": 18,
+      "candidate_cycles_by_hops": {
+        "5": 2,
+        "2": 9,
+        "7": 2,
+        "8": 1,
+        "3": 4
+      },
+      "shortlist": [
+        {
+          "route_id": "adb1e3aca314149f28b70ce8",
+          "hops": 5,
+          "gain_before_network_fee_lovelace": 8864653,
+          "estimated_network_fee_lovelace": 878000,
+          "estimated_net_lovelace": 7986653
+        },
+        {
+          "route_id": "d7176a44a692dd5ad6d0feab",
+          "hops": 2,
+          "gain_before_network_fee_lovelace": 5614143,
+          "estimated_network_fee_lovelace": 533000,
+          "estimated_net_lovelace": 5081143
+        },
+        {
+          "route_id": "2a747e39e5888ae5fb16e850",
+          "hops": 2,
+          "gain_before_network_fee_lovelace": 5612835,
+          "estimated_network_fee_lovelace": 533000,
+          "estimated_net_lovelace": 5079835
+        }
+      ],
+      "best_gross_gain_lovelace": 8864653
+    },
+    {
+      "max_cycles": 256,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rotation": 2,
+      "elapsed_seconds": 0.2185729310149327,
+      "expansions": 2241,
+      "cycles": 256,
+      "size_attempts": 5021,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 1778,
+      "search_truncated": true,
+      "cycles_sized": 256,
+      "pre_fee_candidates": 630,
+      "distinct_candidate_cycles": 54,
+      "candidate_cycles_by_hops": {
+        "7": 4,
+        "4": 15,
+        "6": 7,
+        "2": 9,
+        "3": 13,
+        "5": 6
+      },
+      "shortlist": [
+        {
+          "route_id": "7dbcfe54b349a117b9dd8b0e",
+          "hops": 7,
+          "gain_before_network_fee_lovelace": 37734335,
+          "estimated_network_fee_lovelace": 945000,
+          "estimated_net_lovelace": 36789335
+        },
+        {
+          "route_id": "b7a477570f50ad0539555f09",
+          "hops": 4,
+          "gain_before_network_fee_lovelace": 31511904,
+          "estimated_network_fee_lovelace": 788000,
+          "estimated_net_lovelace": 30723904
+        },
+        {
+          "route_id": "737ef3c428d9558145c5a21b",
+          "hops": 7,
+          "gain_before_network_fee_lovelace": 31625905,
+          "estimated_network_fee_lovelace": 992000,
+          "estimated_net_lovelace": 30633905
+        }
+      ],
+      "best_gross_gain_lovelace": 37734335
+    },
+    {
+      "max_cycles": 1024,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "rotation": 0,
+      "elapsed_seconds": 0.3040289630298503,
+      "expansions": 8925,
+      "cycles": 1024,
+      "size_attempts": 17567,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 8309,
+      "search_truncated": true,
+      "cycles_sized": 1024,
+      "pre_fee_candidates": 1713,
+      "distinct_candidate_cycles": 154,
+      "candidate_cycles_by_hops": {
+        "7": 15,
+        "8": 12,
+        "6": 27,
+        "3": 33,
+        "4": 33,
+        "5": 25,
+        "2": 9
+      },
+      "shortlist": [
+        {
+          "route_id": "98e238d3c6dab48f0d227180",
+          "hops": 7,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 945000,
+          "estimated_net_lovelace": 36747461
+        },
+        {
+          "route_id": "1721829146ad81c5143eef95",
+          "hops": 8,
+          "gain_before_network_fee_lovelace": 37734335,
+          "estimated_network_fee_lovelace": 1013000,
+          "estimated_net_lovelace": 36721335
+        },
+        {
+          "route_id": "c0bbd3f6ec28b1b72bd5f149",
+          "hops": 6,
+          "gain_before_network_fee_lovelace": 37315570,
+          "estimated_network_fee_lovelace": 877000,
+          "estimated_net_lovelace": 36438570
+        }
+      ],
+      "best_gross_gain_lovelace": 37734335
+    },
+    {
+      "max_cycles": 1024,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "rotation": 1,
+      "elapsed_seconds": 0.23297608096618205,
+      "expansions": 7896,
+      "cycles": 905,
+      "size_attempts": 15479,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 8792,
+      "search_truncated": true,
+      "cycles_sized": 905,
+      "pre_fee_candidates": 543,
+      "distinct_candidate_cycles": 48,
+      "candidate_cycles_by_hops": {
+        "3": 27,
+        "4": 2,
+        "5": 4,
+        "2": 9,
+        "7": 3,
+        "8": 2,
+        "6": 1
+      },
+      "shortlist": [
+        {
+          "route_id": "081c7ef0ece0b55bf0663ad4",
+          "hops": 3,
+          "gain_before_network_fee_lovelace": 36938644,
+          "estimated_network_fee_lovelace": 673000,
+          "estimated_net_lovelace": 36265644
+        },
+        {
+          "route_id": "c0645b1a9fba6abf5e6b00d5",
+          "hops": 3,
+          "gain_before_network_fee_lovelace": 31883710,
+          "estimated_network_fee_lovelace": 648000,
+          "estimated_net_lovelace": 31235710
+        },
+        {
+          "route_id": "ad1e9418bba087cc111252c5",
+          "hops": 4,
+          "gain_before_network_fee_lovelace": 31165072,
+          "estimated_network_fee_lovelace": 788000,
+          "estimated_net_lovelace": 30377072
+        }
+      ],
+      "best_gross_gain_lovelace": 36938644
+    },
+    {
+      "max_cycles": 1024,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "rotation": 2,
+      "elapsed_seconds": 0.4662915139924735,
+      "expansions": 8808,
+      "cycles": 1024,
+      "size_attempts": 18853,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 8327,
+      "search_truncated": true,
+      "cycles_sized": 1024,
+      "pre_fee_candidates": 1645,
+      "distinct_candidate_cycles": 150,
+      "candidate_cycles_by_hops": {
+        "3": 52,
+        "6": 22,
+        "7": 13,
+        "8": 5,
+        "5": 22,
+        "4": 27,
+        "2": 9
+      },
+      "shortlist": [
+        {
+          "route_id": "8ec6571adafee90af5b49235",
+          "hops": 3,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 673000,
+          "estimated_net_lovelace": 37019461
+        },
+        {
+          "route_id": "1d6091a9a163c7dc8b4b11b0",
+          "hops": 6,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 877000,
+          "estimated_net_lovelace": 36815461
+        },
+        {
+          "route_id": "7dbcfe54b349a117b9dd8b0e",
+          "hops": 7,
+          "gain_before_network_fee_lovelace": 37734335,
+          "estimated_network_fee_lovelace": 945000,
+          "estimated_net_lovelace": 36789335
+        }
+      ],
+      "best_gross_gain_lovelace": 37734335
+    },
+    {
+      "max_cycles": 4096,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "rotation": 0,
+      "elapsed_seconds": 0.34955608705058694,
+      "expansions": 10000,
+      "cycles": 1168,
+      "size_attempts": 20039,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 9110,
+      "search_truncated": true,
+      "cycles_sized": 1168,
+      "pre_fee_candidates": 1935,
+      "distinct_candidate_cycles": 175,
+      "candidate_cycles_by_hops": {
+        "4": 39,
+        "7": 17,
+        "8": 12,
+        "6": 33,
+        "3": 38,
+        "5": 27,
+        "2": 9
+      },
+      "shortlist": [
+        {
+          "route_id": "0a2026ef9eacc7ef3307ce66",
+          "hops": 4,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 741000,
+          "estimated_net_lovelace": 36951461
+        },
+        {
+          "route_id": "98e238d3c6dab48f0d227180",
+          "hops": 7,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 945000,
+          "estimated_net_lovelace": 36747461
+        },
+        {
+          "route_id": "1721829146ad81c5143eef95",
+          "hops": 8,
+          "gain_before_network_fee_lovelace": 37734335,
+          "estimated_network_fee_lovelace": 1013000,
+          "estimated_net_lovelace": 36721335
+        }
+      ],
+      "best_gross_gain_lovelace": 37734335
+    },
+    {
+      "max_cycles": 4096,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "rotation": 1,
+      "elapsed_seconds": 0.26293762802379206,
+      "expansions": 8781,
+      "cycles": 1024,
+      "size_attempts": 17522,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 9839,
+      "search_truncated": true,
+      "cycles_sized": 1024,
+      "pre_fee_candidates": 598,
+      "distinct_candidate_cycles": 53,
+      "candidate_cycles_by_hops": {
+        "3": 30,
+        "4": 3,
+        "5": 4,
+        "6": 2,
+        "2": 9,
+        "7": 3,
+        "8": 2
+      },
+      "shortlist": [
+        {
+          "route_id": "081c7ef0ece0b55bf0663ad4",
+          "hops": 3,
+          "gain_before_network_fee_lovelace": 36938644,
+          "estimated_network_fee_lovelace": 673000,
+          "estimated_net_lovelace": 36265644
+        },
+        {
+          "route_id": "c0645b1a9fba6abf5e6b00d5",
+          "hops": 3,
+          "gain_before_network_fee_lovelace": 31883710,
+          "estimated_network_fee_lovelace": 648000,
+          "estimated_net_lovelace": 31235710
+        },
+        {
+          "route_id": "d714146bc44ba270ab5ee352",
+          "hops": 4,
+          "gain_before_network_fee_lovelace": 31919133,
+          "estimated_network_fee_lovelace": 788000,
+          "estimated_net_lovelace": 31131133
+        }
+      ],
+      "best_gross_gain_lovelace": 36938644
+    },
+    {
+      "max_cycles": 4096,
+      "max_hops": 8,
+      "candidate_hops": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "rotation": 2,
+      "elapsed_seconds": 0.536431419022847,
+      "expansions": 9914,
+      "cycles": 1174,
+      "size_attempts": 21430,
+      "sizing_exhausted": 0,
+      "rounding_rejected": 9398,
+      "search_truncated": true,
+      "cycles_sized": 1174,
+      "pre_fee_candidates": 1861,
+      "distinct_candidate_cycles": 168,
+      "candidate_cycles_by_hops": {
+        "3": 58,
+        "6": 22,
+        "7": 16,
+        "8": 5,
+        "5": 28,
+        "4": 30,
+        "2": 9
+      },
+      "shortlist": [
+        {
+          "route_id": "8ec6571adafee90af5b49235",
+          "hops": 3,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 673000,
+          "estimated_net_lovelace": 37019461
+        },
+        {
+          "route_id": "1d6091a9a163c7dc8b4b11b0",
+          "hops": 6,
+          "gain_before_network_fee_lovelace": 37692461,
+          "estimated_network_fee_lovelace": 877000,
+          "estimated_net_lovelace": 36815461
+        },
+        {
+          "route_id": "7dbcfe54b349a117b9dd8b0e",
+          "hops": 7,
+          "gain_before_network_fee_lovelace": 37734335,
+          "estimated_network_fee_lovelace": 945000,
+          "estimated_net_lovelace": 36789335
+        }
+      ],
+      "best_gross_gain_lovelace": 37734335
+    }
+  ]
+}

@@ -23,4 +23,5 @@ wallet_id = "watch-only"
 
 # Custom profiles use the same fields; pin magic AND system_start independently.
 # Optional token_env refers to an environment variable containing a Koios token.
+# Example inside a network section: token_env = "KOIOS_API_KEY"
 # Never paste credentials or signing keys here.

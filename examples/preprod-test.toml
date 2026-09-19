@@ -5,7 +5,10 @@ network_magic = 1
 system_start = 1654041600
 address_network = "testnet"
 koios_url = "https://preprod.koios.rest/api/v1"
+# Export the raw Koios API token in the terminal before starting the bot.
+token_env = "KOIOS_API_KEY"
 wallet_id = "mvp-test"
-# Qualified against this endpoint, not a guarantee for every Koios tier.
-max_request_bytes = 16384
+# JSON carries CBOR as hex; allow ledger-sized transactions plus RPC overhead.
+# Provider acceptance is qualified separately from ledger execution limits.
+max_request_bytes = 65536
 confirmations = 3

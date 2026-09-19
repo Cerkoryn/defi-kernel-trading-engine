@@ -35,6 +35,8 @@ def create_test_wallet(profile, state_dir):
         "payment_key": "payment.skey",
         "stake_key": "stake.skey",
     }
+    # Bypass SDK save until exclusive private writes qualify; retain fsync and read checks.
+    # https://github.com/Python-Cardano/pycardano/pull/495
     for name, content in [
         ("payment.skey", payment.to_json()),
         ("stake.skey", stake.to_json()),

@@ -38,7 +38,7 @@ def test_final_plans_balance_and_pass_independent_policy(monkeypatch, action, tm
                 p.rows.append(row)
                 seen.add(ref)
     context = StructuralContext(p.rows, p.clock())
-    monkeypatch.setattr(module, "KoiosChainContext", lambda provider: context)
+    monkeypatch.setattr(module, "ProviderChainContext", lambda provider: context)
     observation = observe_pool(p, MARKET)
     wallet_rows = list(p.scan("address_utxos", {}).rows)
     collateral = wallet_rows.pop()

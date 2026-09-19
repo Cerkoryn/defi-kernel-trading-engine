@@ -57,10 +57,11 @@ class StructuralContext(Context):
     def __init__(self, rows, now, budgets=None):
         self.budgets = budgets or {}
         self.rows = {OutRef(r["tx_hash"], r["tx_index"]): r for r in rows}
-        self.slot_at_ms = SlotClock(
+        self.slot_clock = SlotClock(
             PROFILE,
             json.loads(Path("evidence/preprod-era-summaries.json").read_text())["data"],
-        ).slot_at_ms
+        )
+        self.slot_at_ms = self.slot_clock.slot_at_ms
         self.last_block_slot = self.slot_at_ms(int(now * 1000))
         self.epoch = 1000
 
@@ -372,3 +373,34 @@ def test_signing_policy_rejects_network_and_economic_limit_changes():
         type(q) is int
         for q in value_units(tx.transaction_body.outputs[-1].amount).values()
     )
+
+
+def test_dano_sdk_validation_failure_is_a_row_rejection():
+    from pycardano import IndefiniteList, datum_hash
+
+    from defi_kernel.protocols import DANO_PREPROD_HASH, decode_dano
+
+    row = deepcopy(
+        next(
+            r
+            for r in EVIDENCE["rows"]
+            if r["tx_hash"] == MARKET["pool"]["tx_hash"]
+            and r["tx_index"] == MARKET["pool"]["tx_index"]
+        )
+    )
+    datum = dano.DanoCLMMState.pool_datum_class().from_cbor(
+        row["inline_datum"]["bytes"]
+    )
+    nft = next(a for a in row["asset_list"] if a["policy_id"] == DANO_PREPROD_HASH)
+    # A pool-shaped datum claiming its validity NFT as a traded asset passes the
+    # outer shape/NFT checks but is rejected by the SDK's NFT extraction.
+    datum = replace(
+        datum,
+        token_y=IndefiniteList(
+            [bytes.fromhex(nft["policy_id"]), bytes.fromhex(nft["asset_name"])]
+        ),
+    )
+    row["inline_datum"]["bytes"] = datum.to_cbor_hex()
+    row["datum_hash"] = str(datum_hash(datum))
+    with pytest.raises(KernelError, match="Invalid Dano pool: NotAPoolError"):
+        decode_dano(row, PROFILE, platform_fee_rate=1000)

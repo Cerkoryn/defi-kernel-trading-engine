@@ -67,7 +67,7 @@ def test_observer_does_not_erase_canonical_events_on_indexer_absence(tmp_path):
     journal.replace_order_projection(ADDRESS, EVENTS, complete)
     provider = SimpleNamespace(
         profile=PROFILE,
-        scan=lambda *a: Observation(
+        address_transactions=lambda *a: Observation(
             "preprod",
             PROFILE.koios_url,
             0,
@@ -126,6 +126,12 @@ def test_observer_waits_for_confirmations_and_replays_positive_rollback(
             return Transaction.from_cbor(
                 next(e["cbor"] for e in self.events if e["txid"] == txid)
             )
+
+        def address_utxos(self, address):
+            return self.scan("address_utxos", {"_addresses": [address]})
+
+        def address_transactions(self, address):
+            return self.scan("address_txs", {"_addresses": [address]})
 
         def scan(self, endpoint, body):
             if endpoint == "address_txs":

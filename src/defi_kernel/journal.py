@@ -50,7 +50,16 @@ class Journal:
             CREATE TABLE IF NOT EXISTS chain_events (txid TEXT PRIMARY KEY, address TEXT NOT NULL, payload TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS order_projection (address TEXT PRIMARY KEY, payload TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS engine_control (singleton INTEGER PRIMARY KEY CHECK(singleton=1), cancel_requested INTEGER NOT NULL DEFAULT 0);
+            CREATE TABLE IF NOT EXISTS arbitrage_runs (id TEXT PRIMARY KEY, started_at REAL NOT NULL, ended_at REAL, observed_at REAL NOT NULL, state TEXT NOT NULL, config TEXT NOT NULL, summary TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS arbitrage_outcomes (intent TEXT PRIMARY KEY REFERENCES outbox(intent), block_hash TEXT NOT NULL, net_lovelace INTEGER NOT NULL, verified_at REAL NOT NULL);
+            CREATE TABLE IF NOT EXISTS execution_incidents (intent TEXT PRIMARY KEY REFERENCES outbox(intent), evidence TEXT NOT NULL, acknowledged_at REAL, acknowledgment TEXT);
         """)
+        # Upgrade existing journals without silently clearing historical failures.
+        self.db.execute(
+            "INSERT OR IGNORE INTO execution_incidents(intent,evidence) "
+            "SELECT t.intent,COALESCE(o.last_error,'{}') FROM transactions t "
+            "JOIN outbox o USING(intent) WHERE t.status='failed'"
+        )
         with self.db:
             self.db.execute(
                 "INSERT OR IGNORE INTO identity VALUES(1,?,?)",
@@ -65,6 +74,46 @@ class Journal:
 
     def close(self):
         self.db.close()
+
+    def execution_incidents(self):
+        return [
+            dict(r)
+            for r in self.db.execute(
+                "SELECT i.*,t.txid FROM execution_incidents i "
+                "JOIN transactions t USING(intent) WHERE acknowledged_at IS NULL"
+            )
+        ]
+
+    def require_no_execution_incident(self):
+        incidents = self.execution_incidents()
+        if incidents:
+            raise KernelError(
+                f"Execution paused after confirmed script failure: tx {incidents[0]['txid']}; "
+                "investigate, then use arbitrage-acknowledge with the full transaction ID and a reason"
+            )
+
+    def acknowledge_execution_incident(self, txid, reason, now):
+        if (
+            not isinstance(txid, str)
+            or len(txid) != 64
+            or any(c not in "0123456789abcdef" for c in txid)
+            or not isinstance(reason, str)
+            or not reason.strip()
+            or len(reason) > 2000
+        ):
+            raise KernelError(
+                "Acknowledgment requires a full transaction ID and a reason (1–2000 characters)"
+            )
+        changed = self.db.execute(
+            "UPDATE execution_incidents SET acknowledged_at=?,acknowledgment=? "
+            "WHERE intent=(SELECT intent FROM transactions WHERE txid=?) "
+            "AND acknowledged_at IS NULL",
+            (now, reason.strip(), txid),
+        )
+        if changed.rowcount != 1:
+            raise KernelError(
+                "No unacknowledged execution incident for that transaction"
+            )
 
     def replace_order_projection(self, address, events, projection):
         self.db.execute("BEGIN IMMEDIATE")
@@ -159,6 +208,7 @@ class Journal:
             "transactions": [
                 dict(r) for r in self.db.execute("SELECT * FROM transactions")
             ],
+            "execution_incidents": self.execution_incidents(),
             "reservations": [
                 dict(r) for r in self.db.execute("SELECT * FROM reservations")
             ],
@@ -185,6 +235,158 @@ class Journal:
         self.db.execute(
             "DELETE FROM shadow WHERE id <= (SELECT max(id)-1000 FROM shadow)"
         )
+
+    def start_arbitrage_run(self, run_id, now, config):
+        # Called only while holding the wallet run lock. A missing end is a crash,
+        # not permission to discard old candidates, costs or reservations.
+        self.db.execute(
+            "UPDATE arbitrage_runs SET state='interrupted' WHERE ended_at IS NULL"
+        )
+        self.db.execute(
+            "INSERT INTO arbitrage_runs VALUES(?,?,NULL,?,'starting',?,'{}')",
+            (run_id, now, now, json.dumps(config)),
+        )
+
+    def update_arbitrage_run(self, run_id, now, report):
+        from collections import Counter
+
+        row = self.db.execute(
+            "SELECT summary FROM arbitrage_runs WHERE id=?", (run_id,)
+        ).fetchone()
+        summary = json.loads(row[0])
+        counts = Counter(summary.get("counts", {}))
+        counts["polls"] += 1
+        counts[report["stage"]] += 1
+        for name in (
+            "cycles",
+            "cycles_sized",
+            "pre_fee_candidates",
+            "distinct_candidate_cycles",
+        ):
+            counts[name] += report.get("search", {}).get(name, 0)
+        counts["evaluated_candidates"] += len(report.get("evaluated_candidates", []))
+        counts["build_rejections"] += len(report.get("build_rejections", []))
+        counts["truncated_polls"] += bool(
+            report.get("search", {}).get("search_truncated")
+        )
+        timings = summary.get("timings", {})
+        for phase, seconds in report.get("timings", {}).items():
+            old = timings.get(phase, {"count": 0, "total": 0, "max": 0})
+            timings[phase] = {
+                "count": old["count"] + 1,
+                "total": old["total"] + seconds,
+                "max": max(old["max"], seconds),
+            }
+        latest = {
+            k: report[k]
+            for k in (
+                "stage",
+                "reason",
+                "phase",
+                "observed_at",
+                "liquidity_observed_at",
+                "edge_count",
+                "search",
+                "funds",
+                "costs",
+                "cost_headroom_lovelace",
+                "risk",
+                "loss_headroom_lovelace",
+                "timings",
+                "logging_healthy",
+            )
+            if k in report
+        }
+        summary.update(counts=dict(counts), timings=timings, latest=latest)
+        self.db.execute(
+            "UPDATE arbitrage_runs SET observed_at=?,state=?,summary=? WHERE id=?",
+            (now, report["stage"], json.dumps(summary), run_id),
+        )
+
+    def finish_arbitrage_run(self, run_id, now, state):
+        self.db.execute(
+            "UPDATE arbitrage_runs SET ended_at=?,state=? WHERE id=?",
+            (now, state, run_id),
+        )
+
+    def record_arbitrage_outcome(self, intent, block_hash, net, now):
+        self.db.execute(
+            "INSERT INTO arbitrage_outcomes VALUES(?,?,?,?) "
+            "ON CONFLICT(intent) DO UPDATE SET block_hash=excluded.block_hash,"
+            "net_lovelace=excluded.net_lovelace,verified_at=excluded.verified_at "
+            "WHERE arbitrage_outcomes.block_hash != excluded.block_hash "
+            "OR arbitrage_outcomes.net_lovelace != excluded.net_lovelace",
+            (intent, block_hash, net, now),
+        )
+
+    def arbitrage_history(self, selector="latest"):
+        runs = [
+            dict(r)
+            for r in self.db.execute(
+                "SELECT * FROM arbitrage_runs ORDER BY started_at DESC,rowid DESC"
+            )
+        ]
+        if selector == "latest":
+            runs = runs[:1]
+        elif selector != "all":
+            runs = [r for r in runs if r["id"] == selector]
+            if not runs:
+                raise KernelError("Unknown arbitrage run ID")
+        trades = []
+        for r in self.db.execute(
+            "SELECT t.intent,t.txid,t.status,o.metadata,o.confirmations,o.block_hash,a.net_lovelace,a.verified_at "
+            "FROM transactions t JOIN outbox o USING(intent) "
+            "LEFT JOIN arbitrage_outcomes a ON a.intent=t.intent "
+            "AND a.block_hash=o.block_hash AND t.status IN ('confirmed','failed') "
+            "WHERE json_extract(o.metadata,'$.mode')='atomic arbitrage'"
+        ):
+            meta = json.loads(r["metadata"])
+            trades.append(
+                {
+                    **{
+                        k: r[k]
+                        for k in (
+                            "intent",
+                            "txid",
+                            "status",
+                            "net_lovelace",
+                            "verified_at",
+                            "block_hash",
+                            "confirmations",
+                        )
+                    },
+                    "run_id": meta.get("run_id"),
+                    "path": meta.get("path", []),
+                    "hops": meta.get("hops", []),
+                    "action": meta.get("action"),
+                    "confirmations_required": self.profile.confirmations,
+                    "fee_lovelace": meta.get("fee_lovelace"),
+                    "expected_net_lovelace": meta.get("net_profit_lovelace"),
+                }
+            )
+        for run in runs:
+            run["config"] = json.loads(run["config"])
+            run["summary"] = json.loads(run["summary"])
+            run["trades"] = [t for t in trades if t["run_id"] == run["id"]]
+            run["realized_net_lovelace"] = sum(
+                t["net_lovelace"] or 0 for t in run["trades"]
+            )
+            run["unverified_outcomes"] = sum(
+                t["status"] in ("confirmed", "failed") and t["net_lovelace"] is None
+                for t in run["trades"]
+            )
+        return {
+            "runs": runs,
+            "execution_incidents": self.execution_incidents(),
+            "legacy_trades": [t for t in trades if t["run_id"] is None],
+            "pending_transactions": [
+                dict(r)
+                for r in self.db.execute(
+                    "SELECT intent,txid,status FROM transactions WHERE status NOT IN "
+                    "('confirmed','failed','aborted','expired','conflicted')"
+                )
+            ],
+        }
 
     def bind_watch_wallet(self, address):
         self.db.execute("INSERT OR IGNORE INTO watch_wallet VALUES(1,?)", (address,))
@@ -328,9 +530,9 @@ class Journal:
                 raise KernelError(
                     "Original transaction needs reconciliation; submission is not repeatable"
                 )
-            from pycardano import Transaction
+            from .signing import decode_candidate
 
-            candidate = Transaction.from_cbor(row[0])
+            candidate = decode_candidate(row[0])
             if (
                 not candidate.valid
                 or not candidate.transaction_witness_set.vkey_witnesses
@@ -387,6 +589,10 @@ class Journal:
                 (json.dumps(evidence), intent),
             )
             if status == "failed":
+                self.db.execute(
+                    "INSERT OR IGNORE INTO execution_incidents(intent,evidence) VALUES(?,?)",
+                    (intent, json.dumps(evidence)),
+                )
                 from pycardano import Transaction
 
                 from .signing import ref_text

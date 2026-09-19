@@ -1,0 +1,22 @@
+{
+  "mode": "read-only anonymous Preprod API qualification; no wallet, signing or submission",
+  "observed_at": 1788870586.1515074,
+  "canonical_batch": {
+    "5152408": "1e460447f273225fa2404ec05e7594daf4dd82c370deef96bea6ce677a4aeb26",
+    "5152508": "16728132e3bc56374c25d6781bfc1d1708e16d10b860d2d02956268e764a4bb9"
+  },
+  "verified_reward_accounts": 2,
+  "cached_reference_requests": {
+    "genesis": 1,
+    "utxo_info": 1
+  },
+  "requests": {
+    "genesis": 3,
+    "tip": 1,
+    "blocks": 3,
+    "account_info": 1,
+    "reference_script_utxos": 1,
+    "utxo_info": 2
+  },
+  "stage": "passed"
+}

@@ -5,6 +5,8 @@ description = "Self-hosted Cardano liquidity runtime"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "charli3-dendrite",
+  # Dendrite's pin blocks SDK upgrades: qualify a compatible release first.
+  # https://github.com/Charli3-Official/charli3-dendrite/issues/16
   "pycardano==0.18.0",
   "httpx==0.28.1",
   "typer>=0.16,<1",
@@ -15,10 +17,11 @@ dependencies = [
 kernel = "defi_kernel.cli:app"
 
 [tool.uv]
-# Dendrite pins vulnerable dotenv 1.0.1; patch only that transitive pin
-# (CVE-2026-28684). Setup is qualified through uv.
+# Remove this override once Dendrite permits a qualified patched dotenv release.
+# https://github.com/Charli3-Official/charli3-dendrite/issues/223
 override-dependencies = ["python-dotenv>=1.2.2,<2"]
-# PyCardano 0.18 needs ordered tag-258 decoding; the C decoder uses sets.
+# Keep the cbor2 <6 constraint and pure-Python build until byte-exact upgrade checks pass.
+# https://github.com/Python-Cardano/pycardano/pull/503
 no-binary-package = ["cbor2"]
 extra-build-variables = { cbor2 = { CBOR2_BUILD_C_EXTENSION = "0" } }
 
@@ -39,7 +42,7 @@ packages = ["src/defi_kernel"]
 "docs/SWAPS-LICENSE.md" = "defi_kernel/data/SWAPS-LICENSE.md"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "scripts", "examples", "docs", "evidence", "README.md", "CHECKPOINT.md", "config.example.toml", "cardano-trading-mvp-plan.md", "pyproject.toml", "uv.lock", ".python-version"]
+include = ["src", "tests", "scripts", "examples", "deploy", "docs", "evidence", "README.md", "CHECKPOINT.md", "config.example.toml", "cardano-trading-mvp-plan.md", "pyproject.toml", "uv.lock", ".python-version"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -52,4 +55,5 @@ select = ["E4", "E7", "E9", "F", "I", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
 # PyCardano 0.18's PlutusData deserializer only recognizes typing.Union.
+# Remove with the field workaround: https://github.com/Python-Cardano/pycardano/issues/287
 "src/defi_kernel/protocols.py" = ["UP007"]

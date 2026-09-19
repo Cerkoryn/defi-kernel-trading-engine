@@ -1,0 +1,73 @@
+# Create /mnt/Business/Crypto/dolos-preprod/data, writable by UID/GID 568:568.
+# Paste this entire file into TrueNAS Apps > Discover > Install via YAML.
+services:
+  dolos:
+    image: ghcr.io/txpipe/dolos:2.0.0-alpha.0@sha256:c91ea985f77542edc13b1cb5bd2f002c2df20f1669a517d72a3bf6663933aa59
+    platform: linux/amd64
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        # Materialize config in tmpfs; inline Compose configs fail on read-only services.
+        cat > /tmp/dolos.toml <<'DOLOS_CONFIG'
+        # Keep all archive history for journal recovery.
+        [chain]
+        type = "cardano"
+        magic = 1
+        is_testnet = true
+
+        [upstream]
+        peer_address = "preprod-node.world.dev.cardano.org:30000"
+
+        [storage]
+        version = "v4"
+        path = "/data"
+
+        [genesis]
+        byron_path = "/etc/genesis/preprod/byron.json"
+        shelley_path = "/etc/genesis/preprod/shelley.json"
+        alonzo_path = "/etc/genesis/preprod/alonzo.json"
+        conway_path = "/etc/genesis/preprod/conway.json"
+
+        [sync]
+        max_rollback = 129600
+        # Omit max_history: pruning would remove canonical evidence used by the journal.
+
+        [serve.minibf]
+        listen_address = "0.0.0.0:3000"
+        permissive_cors = false
+        max_scan_items = 10000
+
+        [serve.minikupo]
+        listen_address = "0.0.0.0:1442"
+        permissive_cors = false
+
+        [logging]
+        max_level = "info"
+        DOLOS_CONFIG
+        echo 'Starting Dolos Preprod; empty storage syncs from genesis, existing storage resumes.'
+        exec dolos -c /tmp/dolos.toml daemon
+    user: "568:568"
+    restart: unless-stopped
+    stop_grace_period: 60s
+    cpus: 2.0
+    mem_limit: 4g
+    memswap_limit: 4g
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    ports:
+      - "192.168.0.3:13000:3000"
+      - "192.168.0.3:11442:1442"
+    volumes:
+      - type: bind
+        source: /mnt/Business/Crypto/dolos-preprod/data
+        target: /data
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
